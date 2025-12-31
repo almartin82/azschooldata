@@ -11,9 +11,26 @@
 # The October 1 enrollment reports contain enrollment counts at state, county,
 # LEA (district/charter), and school levels with demographic breakdowns.
 #
+# Data Availability:
+# - Excel files are available from FY2011 (end_year 2011) onwards
+# - PDF-only financial reports exist for earlier years (1990s-2000s) but are
+#   not currently supported by this package
+# - Note: ADE uses different URL patterns across years, so this package tries
+#   multiple URL patterns to locate each year's file
+#
 # Format Eras:
 # - Era 1 (2011-2017): Original Excel format with multiple tabs by level
-# - Era 2 (2018-present): Updated format, may have different column names
+#   URL pattern examples:
+#     /2017/06/october-1-2012-2013.enrollment_count.xlsx
+#     /2017/06/october-1-fy16-enrollment.xlsx
+# - Era 2 (2018-2023): Updated format with FY notation
+#   URL pattern examples:
+#     /2019/10/Fiscal Year 2019 Accountabilty October Enrollment REDACTED.xlsx
+#     /2021/05/2017-2018 October 1 Public Enrollment File UPDATED 2021 V2.xlsx
+# - Era 3 (2024-present): Newest format with simplified naming
+#   URL pattern examples:
+#     /2023/11/Oct1Enrollment2024_publish.xlsx
+#     /2025/04/Oct1EnrollmentFY2025.xlsx
 #
 # ==============================================================================
 
@@ -120,6 +137,14 @@ download_enrollment_file <- function(end_year) {
 #' ADE uses various URL patterns across years. This function generates
 #' a list of URLs to try based on observed patterns.
 #'
+#' URL patterns discovered through research:
+#' - FY24 (2024): /2023/11/Oct1Enrollment2024_publish.xlsx
+#' - FY19 (2019): /2019/10/Fiscal Year 2019 Accountabilty October Enrollment REDACTED.xlsx
+#' - FY19 (2019): /2021/05/October 1 Enrollment 2018 -2019 UPDATED 2021 V2.xlsx
+#' - FY18 (2018): /2021/05/2017-2018 October 1 Public Enrollment File UPDATED 2021 V2.xlsx
+#' - FY16 (2016): /2017/06/october-1-fy16-enrollment.xlsx
+#' - FY13 (2013): /2017/06/october-1-2012-2013.enrollment_count.xlsx
+#'
 #' @param end_year School year end
 #' @return Character vector of URLs to try
 #' @keywords internal
@@ -136,29 +161,77 @@ build_enrollment_urls <- function(end_year) {
   # Base URL for ADE files
   base <- "https://www.azed.gov/sites/default/files"
 
-  # Generate URLs based on observed patterns
+  # Generate URLs based on observed patterns - ordered by likelihood of success
   urls <- c(
-    # Pattern 1: FY format with year in path (most recent years)
+    # ===========================================================================
+    # Pattern 1a: Recent years (FY25+) - Oct1EnrollmentFY{YEAR}.xlsx
+    # Example: /2025/04/Oct1EnrollmentFY2025.xlsx
+    # ===========================================================================
+    paste0(base, "/", end_year, "/04/Oct1EnrollmentFY", end_year, ".xlsx"),
+    paste0(base, "/", end_year, "/01/Oct1EnrollmentFY", end_year, ".xlsx"),
+    paste0(base, "/", end_year, "/11/Oct1EnrollmentFY", end_year, ".xlsx"),
+
+    # ===========================================================================
+    # Pattern 1b: Recent years (FY24) - Oct1Enrollment{YEAR}_publish.xlsx
+    # Example: /2023/11/Oct1Enrollment2024_publish.xlsx
+    # ===========================================================================
+    paste0(base, "/", end_year - 1, "/11/Oct1Enrollment", end_year, "_publish.xlsx"),
+    paste0(base, "/", end_year, "/01/Oct1Enrollment", end_year, "_publish.xlsx"),
+    paste0(base, "/", end_year, "/11/Oct1Enrollment", end_year, "_publish.xlsx"),
+
+    # ===========================================================================
+    # Pattern 2: FY format with year folder (FY19-FY23)
+    # Example: /2024/01/FY24 Oct 1 Enrollment Redacted.xlsx
+    # ===========================================================================
     paste0(base, "/", end_year, "/", fy, "%20Oct%201%20Enrollment%20Redacted.xlsx"),
+    paste0(base, "/", end_year, "/01/", fy, "%20Oct%201%20Enrollment%20Redacted.xlsx"),
+    paste0(base, "/", end_year + 1, "/01/", fy, "%20Oct%201%20Enrollment%20Redacted.xlsx"),
+    paste0(base, "/", end_year + 1, "/05/", fy, "%20Oct%201%20Enrollment%20Redacted%20Formatted%20UPDATED.xlsx"),
+
+    # ===========================================================================
+    # Pattern 3: Fiscal Year spelled out (FY19)
+    # Example: /2019/10/Fiscal Year 2019 Accountabilty October Enrollment REDACTED.xlsx
+    # Note: "Accountabilty" is a typo in the original ADE filename
+    # ===========================================================================
+    paste0(base, "/", end_year, "/10/Fiscal%20Year%20", end_year, "%20Accountabilty%20October%20Enrollment%20REDACTED.xlsx"),
+    paste0(base, "/", end_year, "/10/Fiscal%20Year%20", end_year, "%20Accountability%20October%20Enrollment%20REDACTED.xlsx"),
+
+    # ===========================================================================
+    # Pattern 4: Updated versions in 2021 folder (FY18-FY19)
+    # Example: /2021/05/October 1 Enrollment 2018 -2019 UPDATED 2021 V2.xlsx
+    # Example: /2021/05/2017-2018 October 1 Public Enrollment File UPDATED 2021 V2.xlsx
+    # ===========================================================================
+    paste0(base, "/2021/05/October%201%20Enrollment%20", end_year - 1, "%20-", end_year, "%20UPDATED%202021%20V2.xlsx"),
+    paste0(base, "/2021/05/", end_year - 1, "-", end_year, "%20October%201%20Public%20Enrollment%20File%20UPDATED%202021%20V2.xlsx"),
+
+    # ===========================================================================
+    # Pattern 5: FY format lowercase (FY16-FY17)
+    # Example: /2017/06/october-1-fy16-enrollment.xlsx
+    # ===========================================================================
+    paste0(base, "/2017/06/october-1-", fy_lower, "-enrollment.xlsx"),
+    paste0(base, "/2018/06/october-1-", fy_lower, "-enrollment.xlsx"),
+
+    # ===========================================================================
+    # Pattern 6: School year format with underscore/hyphen (FY11-FY17)
+    # Example: /2017/06/october-1-2012-2013.enrollment_count.xlsx
+    # ===========================================================================
+    paste0(base, "/2017/06/october-1-", end_year - 1, "-", end_year, ".enrollment_count.xlsx"),
+    paste0(base, "/2017/06/october_1_", end_year - 1, "_", end_year, "_enrollment_count.xlsx"),
+    paste0(base, "/2017/06/october-1-", end_year - 1, "-", end_year, "_enrollment_count.xlsx"),
+
+    # ===========================================================================
+    # Pattern 7: Alternative dash patterns
+    # ===========================================================================
     paste0(base, "/", end_year, "/", fy, "-Oct-1-Enrollment-Redacted.xlsx"),
     paste0(base, "/", end_year, "/", fy, "_Oct_1_Enrollment.xlsx"),
     paste0(base, "/", end_year, "/October-1-Enrollment-", fy, ".xlsx"),
-
-    # Pattern 2: Variations with different month folders
-    paste0(base, "/", end_year, "/01/", fy, "%20Oct%201%20Enrollment%20Redacted.xlsx"),
     paste0(base, "/", end_year, "/10/", fy, "-October-1-Enrollment.xlsx"),
 
-    # Pattern 3: Older patterns (2017 and earlier)
-    paste0(base, "/2017/06/october-1-", end_year - 1, "-", end_year, ".enrollment_count.xlsx"),
-    paste0(base, "/2017/06/october_1_", end_year - 1, ".", end_year, "_enrollment_count.xlsx"),
-    paste0(base, "/2017/06/october-1-fy", substr(as.character(end_year), 3, 4), "-enrollment.xlsx"),
-
-    # Pattern 4: Alternative paths from earlier years
-    paste0(base, "/2019/10/Fiscal%20Year%20", end_year, "%20Accountabilty%20October%20Enrollment%20REDACTED.xlsx"),
-
-    # Pattern 5: More recent year variations
-    paste0(base, "/", end_year + 1, "/05/", fy, "%20Oct%201%20Enrollment%20Redacted%20Formatted%20UPDATED.xlsx"),
-    paste0(base, "/", end_year + 1, "/01/", fy, "%20Oct%201%20Enrollment%20Redacted.xlsx")
+    # ===========================================================================
+    # Pattern 8: Year folder variations
+    # ===========================================================================
+    paste0(base, "/", end_year - 1, "/10/", fy, "%20Oct%201%20Enrollment%20Redacted.xlsx"),
+    paste0(base, "/", end_year - 1, "/11/", fy, "%20Oct%201%20Enrollment%20Redacted.xlsx")
   )
 
   urls

@@ -5,9 +5,9 @@ Authors@R:
     person("Al", "Martin", , "almartin@example.com", role = c("aut", "cre"))
 Description: Downloads and processes school enrollment data from the Arizona
     Department of Education (ADE). Provides functions for fetching October 1
-    enrollment data and transforming it into tidy format for analysis. Includes
-    demographic breakdowns by ethnicity, gender, English learner status, income
-    eligibility, and disability status.
+    enrollment data (2011-present) and transforming it into tidy format for
+    analysis. Includes demographic breakdowns by ethnicity, gender, English
+    learner status, income eligibility, and disability status.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

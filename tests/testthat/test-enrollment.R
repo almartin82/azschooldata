@@ -18,8 +18,12 @@ test_that("safe_numeric handles various inputs", {
 })
 
 test_that("fetch_enr validates year parameter", {
-  expect_error(fetch_enr(2005), "end_year must be between")
+  # Test lower bound - 2010 is before earliest available data (2011)
+  expect_error(fetch_enr(2010), "end_year must be between")
+  # Test upper bound - 2030 is beyond supported range
   expect_error(fetch_enr(2030), "end_year must be between")
+  # Edge cases at boundaries should not error (just check they don't throw validation error)
+  # Note: These would attempt network calls, so we just test the validation logic
 })
 
 test_that("get_cache_dir returns valid path", {
@@ -53,6 +57,24 @@ test_that("build_enrollment_urls generates valid URLs", {
   expect_true(length(urls) > 0)
   expect_true(all(grepl("^https://", urls)))
   expect_true(any(grepl("azed.gov", urls)))
+})
+
+test_that("build_enrollment_urls generates correct patterns for different eras", {
+  # Recent year (FY25) - should include Oct1EnrollmentFY pattern
+  urls_2025 <- build_enrollment_urls(2025)
+  expect_true(any(grepl("Oct1EnrollmentFY2025", urls_2025)))
+
+  # FY24 - should include publish pattern
+  urls_2024 <- build_enrollment_urls(2024)
+  expect_true(any(grepl("Oct1Enrollment2024_publish", urls_2024)))
+
+  # Historic year (FY13) - should include enrollment_count pattern
+  urls_2013 <- build_enrollment_urls(2013)
+  expect_true(any(grepl("2012-2013.enrollment_count", urls_2013)))
+
+  # FY16 - should include fy format
+  urls_2016 <- build_enrollment_urls(2016)
+  expect_true(any(grepl("fy16-enrollment", urls_2016)))
 })
 
 test_that("get_ade_column_map returns expected structure", {

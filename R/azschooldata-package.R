@@ -35,10 +35,14 @@
 #' }
 #'
 #' @section Available Years:
+#' Data is available from 2011 through the present:
 #' \itemize{
 #'   \item Era 1 (2011-2017): Original Excel format with multiple tabs
-#'   \item Era 2 (2018-present): Updated format with demographic breakdowns
+#'   \item Era 2 (2018-2023): Updated format with FY notation and demographic breakdowns
+#'   \item Era 3 (2024-present): Simplified naming convention
 #' }
+#' Note: Historical data from the 1990s-2000s exists only as PDF reports and
+#' is not currently supported by this package.
 #'
 #' @docType package
 #' @name azschooldata-package
