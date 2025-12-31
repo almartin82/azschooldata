@@ -1,0 +1,36 @@
+Package: azschooldata
+Title: Fetch and Process Arizona School Data
+Version: 0.1.0
+Authors@R:
+    person("Al", "Martin", , "almartin@example.com", role = c("aut", "cre"))
+Description: Downloads and processes school enrollment data from the Arizona
+    Department of Education (ADE). Provides functions for fetching October 1
+    enrollment data and transforming it into tidy format for analysis. Includes
+    demographic breakdowns by ethnicity, gender, English learner status, income
+    eligibility, and disability status.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.0)
+Imports:
+    dplyr,
+    readxl,
+    readr,
+    purrr,
+    stringr,
+    tidyr,
+    rlang,
+    httr,
+    rappdirs
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    ggplot2,
+    scales
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+URL: https://almartin82.github.io/azschooldata/, https://github.com/almartin82/azschooldata
+BugReports: https://github.com/almartin82/azschooldata/issues
