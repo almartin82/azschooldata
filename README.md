@@ -2,10 +2,11 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/almartin82/azschooldata/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/almartin82/azschooldata/actions/workflows/R-CMD-check.yaml)
+[![Python Tests](https://github.com/almartin82/azschooldata/actions/workflows/python-test.yaml/badge.svg)](https://github.com/almartin82/azschooldata/actions/workflows/python-test.yaml)
 [![pkgdown](https://github.com/almartin82/azschooldata/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/almartin82/azschooldata/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-Fetch and analyze Arizona public school enrollment data from the Arizona Department of Education (ADE).
+Fetch and analyze Arizona school enrollment data from the Arizona Department of Education (ADE) in R or Python.
 
 **[Documentation](https://almartin82.github.io/azschooldata/)** | **[10 Key Insights](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)** | **[Getting Started](https://almartin82.github.io/azschooldata/articles/quickstart.html)**
 
@@ -194,6 +195,8 @@ remotes::install_github("almartin82/azschooldata")
 
 ## Quick start
 
+### R
+
 ```r
 library(azschooldata)
 library(dplyr)
@@ -218,6 +221,39 @@ enr_2025 %>%
   filter(is_state, grade_level == "TOTAL",
          subgroup %in% c("hispanic", "white", "black", "asian", "native_american")) %>%
   select(subgroup, n_students, pct)
+```
+
+### Python
+
+```python
+import pyazschooldata as az
+
+# Fetch one year
+enr_2025 = az.fetch_enr(2025)
+
+# Fetch multiple years
+enr_multi = az.fetch_enr_multi([2020, 2021, 2022, 2023, 2024, 2025])
+
+# State totals
+state_total = enr_2025[
+    (enr_2025['is_state'] == True) &
+    (enr_2025['subgroup'] == 'total_enrollment') &
+    (enr_2025['grade_level'] == 'TOTAL')
+]
+
+# District breakdown
+districts = enr_2025[
+    (enr_2025['is_district'] == True) &
+    (enr_2025['subgroup'] == 'total_enrollment') &
+    (enr_2025['grade_level'] == 'TOTAL')
+].sort_values('n_students', ascending=False)
+
+# Demographics
+demographics = enr_2025[
+    (enr_2025['is_state'] == True) &
+    (enr_2025['grade_level'] == 'TOTAL') &
+    (enr_2025['subgroup'].isin(['hispanic', 'white', 'black', 'asian', 'native_american']))
+][['subgroup', 'n_students', 'pct']]
 ```
 
 ## Data availability
