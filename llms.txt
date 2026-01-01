@@ -1,13 +1,19 @@
 # azschooldata
 
-Fetch and analyze Arizona public school enrollment data from the Arizona
-Department of Education (ADE).
+Fetch and analyze Arizona school enrollment data from the Arizona
+Department of Education (ADE) in R or Python.
 
-**[Documentation](https://almartin82.github.io/azschooldata/)** \|
-**[Getting
+**[Documentation](https://almartin82.github.io/azschooldata/)** \| **[10
+Key
+Insights](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)**
+\| **[Getting
 Started](https://almartin82.github.io/azschooldata/articles/quickstart.html)**
 
 ## What can you find with azschooldata?
+
+> **See the full analysis with charts and data output:** [10 Insights
+> from Arizona Enrollment
+> Data](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)
 
 **15 years of enrollment data (2011-2025).** 1.1 million students across
 230+ districts in the Grand Canyon State. Here are ten stories hiding in
@@ -33,6 +39,11 @@ enr %>%
   mutate(change = n_students - lag(n_students))
 ```
 
+![Arizona enrollment
+trend](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/statewide-chart-1.png)
+
+Arizona enrollment trend
+
 ------------------------------------------------------------------------
 
 ### 2. Mesa Unified is shrinking while Gilbert grows
@@ -50,6 +61,11 @@ enr %>%
   select(end_year, district_name, n_students) %>%
   tidyr::pivot_wider(names_from = end_year, values_from = n_students)
 ```
+
+![Mesa vs
+Gilbert](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/mesa-gilbert-chart-1.png)
+
+Mesa vs Gilbert
 
 ------------------------------------------------------------------------
 
@@ -85,6 +101,11 @@ enr_2025 %>%
   select(subgroup, n_students, pct) %>%
   arrange(desc(n_students))
 ```
+
+![Arizona
+demographics](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/demographics-chart-1.png)
+
+Arizona demographics
 
 ------------------------------------------------------------------------
 
@@ -201,6 +222,8 @@ remotes::install_github("almartin82/azschooldata")
 
 ## Quick start
 
+### R
+
 ``` r
 library(azschooldata)
 library(dplyr)
@@ -225,6 +248,39 @@ enr_2025 %>%
   filter(is_state, grade_level == "TOTAL",
          subgroup %in% c("hispanic", "white", "black", "asian", "native_american")) %>%
   select(subgroup, n_students, pct)
+```
+
+### Python
+
+``` python
+import pyazschooldata as az
+
+# Fetch one year
+enr_2025 = az.fetch_enr(2025)
+
+# Fetch multiple years
+enr_multi = az.fetch_enr_multi([2020, 2021, 2022, 2023, 2024, 2025])
+
+# State totals
+state_total = enr_2025[
+    (enr_2025['is_state'] == True) &
+    (enr_2025['subgroup'] == 'total_enrollment') &
+    (enr_2025['grade_level'] == 'TOTAL')
+]
+
+# District breakdown
+districts = enr_2025[
+    (enr_2025['is_district'] == True) &
+    (enr_2025['subgroup'] == 'total_enrollment') &
+    (enr_2025['grade_level'] == 'TOTAL')
+].sort_values('n_students', ascending=False)
+
+# Demographics
+demographics = enr_2025[
+    (enr_2025['is_state'] == True) &
+    (enr_2025['grade_level'] == 'TOTAL') &
+    (enr_2025['subgroup'].isin(['hispanic', 'white', 'black', 'asian', 'native_american']))
+][['subgroup', 'n_students', 'pct']]
 ```
 
 ## Data availability
@@ -255,17 +311,12 @@ enrollment reports.
 Arizona Department of Education: [Research and
 Evaluation](https://www.azed.gov/accountability-research)
 
-## Part of the 50 State Schooldata Family
+## Part of the State Schooldata Project
 
-This package is part of a family of R packages providing school
-enrollment data for all 50 US states. Each package fetches data directly
-from the state’s Department of Education.
+A simple, consistent interface for accessing state-published school data
+in Python and R.
 
-**See also:**
-[njschooldata](https://github.com/almartin82/njschooldata) - The
-original state schooldata package for New Jersey.
-
-**All packages:**
+**All 50 state packages:**
 [github.com/almartin82](https://github.com/almartin82?tab=repositories&q=schooldata)
 
 ## Author
@@ -284,6 +335,8 @@ MIT
   : Fetch Arizona enrollment data
 - [`fetch_enr_multi()`](https://almartin82.github.io/azschooldata/reference/fetch_enr_multi.md)
   : Fetch enrollment data for multiple years
+- [`get_available_years()`](https://almartin82.github.io/azschooldata/reference/get_available_years.md)
+  : Get available years for Arizona enrollment data
 
 ## Process & Tidy
 
@@ -301,3 +354,9 @@ MIT
 - [`clear_cache()`](https://almartin82.github.io/azschooldata/reference/clear_cache.md)
   : Clear the azschooldata cache
 
+# Articles
+
+### Key Insights
+
+- [10 Insights from Arizona School Enrollment
+  Data](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.md):

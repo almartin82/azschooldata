@@ -1,6 +1,10 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://almartin82.github.io/azschooldata/404.html</loc></url>
+<url><loc>https://almartin82.github.io/azschooldata/CLAUDE.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/LICENSE-text.html</loc></url>
+<url><loc>https://almartin82.github.io/azschooldata/LICENSE.html</loc></url>
+<url><loc>https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html</loc></url>
+<url><loc>https://almartin82.github.io/azschooldata/articles/index.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/authors.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/index.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/azschooldata-package.html</loc></url>
@@ -15,6 +19,7 @@
 <url><loc>https://almartin82.github.io/azschooldata/reference/fetch_enr.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/fetch_enr_multi.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/get_ade_column_map.html</loc></url>
+<url><loc>https://almartin82.github.io/azschooldata/reference/get_available_years.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/get_cache_dir.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/get_cache_path.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/get_fy.html</loc></url>
@@ -24,7 +29,6 @@
 <url><loc>https://almartin82.github.io/azschooldata/reference/index.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/parse_era1_excel.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/parse_era2_excel.html</loc></url>
-<url><loc>https://almartin82.github.io/azschooldata/reference/pipe.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/process_district_enr.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/process_enr.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/process_school_enr.html</loc></url>
