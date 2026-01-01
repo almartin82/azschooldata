@@ -7,9 +7,11 @@
 
 Fetch and analyze Arizona public school enrollment data from the Arizona Department of Education (ADE).
 
-**[Documentation](https://almartin82.github.io/azschooldata/)** | **[Getting Started](https://almartin82.github.io/azschooldata/articles/quickstart.html)**
+**[Documentation](https://almartin82.github.io/azschooldata/)** | **[10 Key Insights](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)** | **[Getting Started](https://almartin82.github.io/azschooldata/articles/quickstart.html)**
 
 ## What can you find with azschooldata?
+
+> **See the full analysis with charts and data output:** [10 Insights from Arizona Enrollment Data](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)
 
 **15 years of enrollment data (2011-2025).** 1.1 million students across 230+ districts in the Grand Canyon State. Here are ten stories hiding in the numbers:
 

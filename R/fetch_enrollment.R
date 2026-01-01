@@ -44,7 +44,7 @@
 #' enr_2011 <- fetch_enr(2011)
 #'
 #' # Filter to specific district
-#' phoenix_union <- enr_2024 %>%
+#' phoenix_union <- enr_2024 |>
 #'   dplyr::filter(grepl("Phoenix Union", district_name, ignore.case = TRUE))
 #' }
 fetch_enr <- function(end_year, tidy = TRUE, use_cache = TRUE) {
@@ -71,7 +71,7 @@ fetch_enr <- function(end_year, tidy = TRUE, use_cache = TRUE) {
 
   # Optionally tidy
   if (tidy) {
-    processed <- tidy_enr(processed) %>%
+    processed <- tidy_enr(processed) |>
       id_enr_aggs()
   }
 
@@ -103,8 +103,8 @@ fetch_enr <- function(end_year, tidy = TRUE, use_cache = TRUE) {
 #' enr_all <- fetch_enr_multi(2011:2025)
 #'
 #' # Track enrollment trends
-#' enr_multi %>%
-#'   dplyr::filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL") %>%
+#' enr_multi |>
+#'   dplyr::filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL") |>
 #'   dplyr::select(end_year, n_students)
 #' }
 fetch_enr_multi <- function(end_years, tidy = TRUE, use_cache = TRUE) {

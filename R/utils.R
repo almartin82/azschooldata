@@ -2,20 +2,30 @@
 # Utility Functions
 # ==============================================================================
 
-#' Pipe operator
-#'
-#' See \code{dplyr::\link[dplyr:reexports]{\%>\%}} for details.
-#'
-#' @name %>%
-#' @rdname pipe
-#' @keywords internal
-#' @export
-#' @importFrom dplyr %>%
-#' @usage lhs \%>\% rhs
-#' @param lhs A value or the magrittr placeholder.
-#' @param rhs A function call using the magrittr semantics.
-#' @return The result of calling `rhs(lhs)`.
+#' @importFrom rlang .data
 NULL
+
+
+#' Get available years for Arizona enrollment data
+#'
+#' Returns the range of school years for which enrollment data is available
+#' from the Arizona Department of Education.
+#'
+#' @return A list with three elements:
+#'   \item{min_year}{The earliest available school year end (e.g., 2011 for 2010-11)}
+#'   \item{max_year}{The latest available school year end (e.g., 2026 for 2025-26)}
+#'   \item{description}{Human-readable description of data availability}
+#' @export
+#' @examples
+#' get_available_years()
+#' # Returns list with min_year, max_year, and description
+get_available_years <- function() {
+  list(
+    min_year = 2011,
+    max_year = 2026,
+    description = "Arizona enrollment data is available from 2010-11 (end_year 2011) through 2025-26 (end_year 2026). Data comes from the October 1 enrollment reports published by the Arizona Department of Education. Earlier years (1990s-2000s) exist only as PDF reports and are not currently supported."
+  )
+}
 
 
 #' Convert to numeric, handling suppression markers
