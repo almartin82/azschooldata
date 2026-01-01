@@ -1,0 +1,24 @@
+# Package index
+
+## Fetch Data
+
+- [`fetch_enr()`](https://almartin82.github.io/azschooldata/reference/fetch_enr.md)
+  : Fetch Arizona enrollment data
+- [`fetch_enr_multi()`](https://almartin82.github.io/azschooldata/reference/fetch_enr_multi.md)
+  : Fetch enrollment data for multiple years
+
+## Process & Tidy
+
+- [`tidy_enr()`](https://almartin82.github.io/azschooldata/reference/tidy_enr.md)
+  : Tidy enrollment data
+- [`id_enr_aggs()`](https://almartin82.github.io/azschooldata/reference/id_enr_aggs.md)
+  : Identify enrollment aggregation levels
+- [`enr_grade_aggs()`](https://almartin82.github.io/azschooldata/reference/enr_grade_aggs.md)
+  : Custom Enrollment Grade Level Aggregates
+
+## Cache Management
+
+- [`cache_status()`](https://almartin82.github.io/azschooldata/reference/cache_status.md)
+  : Show cache status
+- [`clear_cache()`](https://almartin82.github.io/azschooldata/reference/clear_cache.md)
+  : Clear the azschooldata cache
