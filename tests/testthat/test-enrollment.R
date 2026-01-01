@@ -18,8 +18,8 @@ test_that("safe_numeric handles various inputs", {
 })
 
 test_that("fetch_enr validates year parameter", {
-  # Test lower bound - 2010 is before earliest available data (2011)
-  expect_error(fetch_enr(2010), "end_year must be between")
+  # Test lower bound - 2017 is before earliest available data (2018)
+  expect_error(fetch_enr(2017), "end_year must be between")
   # Test upper bound - 2030 is beyond supported range
   expect_error(fetch_enr(2030), "end_year must be between")
   # Edge cases at boundaries should not error (just check they don't throw validation error)

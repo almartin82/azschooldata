@@ -12,7 +12,9 @@
 # LEA (district/charter), and school levels with demographic breakdowns.
 #
 # Data Availability:
-# - Excel files are available from FY2011 (end_year 2011) onwards
+# - Excel files are available from FY2018 (end_year 2018) onwards
+# - Data from FY2011-FY2017 (end_year 2011-2017) may be available through
+#   manual requests to ADE, but automatic download URLs are no longer accessible
 # - PDF-only financial reports exist for earlier years (1990s-2000s) but are
 #   not currently supported by this package
 # - Note: ADE uses different URL patterns across years, so this package tries
@@ -44,9 +46,9 @@
 #' @keywords internal
 get_raw_enr <- function(end_year) {
 
-  # Validate year - data available from 2011 onwards
-  if (end_year < 2011 || end_year > 2026) {
-    stop("end_year must be between 2011 and 2026")
+  # Validate year - data available from 2018 onwards
+  if (end_year < 2018 || end_year > 2026) {
+    stop("end_year must be between 2018 and 2026")
   }
 
   message(paste("Downloading ADE enrollment data for", end_year, "..."))
