@@ -48,7 +48,7 @@ enr_fresh <- fetch_enr(2024, use_cache = FALSE)
 enr_2011 <- fetch_enr(2011)
 
 # Filter to specific district
-phoenix_union <- enr_2024 \%>\%
+phoenix_union <- enr_2024 |>
   dplyr::filter(grepl("Phoenix Union", district_name, ignore.case = TRUE))
 }
 }
