@@ -33,6 +33,8 @@ enr %>%
   mutate(change = n_students - lag(n_students))
 ```
 
+![Arizona enrollment trend](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/statewide-chart-1.png)
+
 ---
 
 ### 2. Mesa Unified is shrinking while Gilbert grows
@@ -48,6 +50,8 @@ enr %>%
   select(end_year, district_name, n_students) %>%
   tidyr::pivot_wider(names_from = end_year, values_from = n_students)
 ```
+
+![Mesa vs Gilbert](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/mesa-gilbert-chart-1.png)
 
 ---
 
@@ -81,6 +85,8 @@ enr_2025 %>%
   select(subgroup, n_students, pct) %>%
   arrange(desc(n_students))
 ```
+
+![Arizona demographics](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/demographics-chart-1.png)
 
 ---
 
