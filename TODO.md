@@ -1,33 +1,21 @@
-# TODO: azschooldata pkgdown build issues
+# TODO: azschooldata
 
-## Critical: Enrollment data download URLs are broken
+## Cloudflare Protection Blocking Downloads (Ongoing)
 
 **Date identified:** 2026-01-01
+**Status:** Mitigated for pkgdown builds; data access still blocked
 
-**Error:** All enrollment data downloads fail - no years work (tested 2018-2025)
+**Issue:** The Arizona Department of Education website (azed.gov) has Cloudflare challenge-based protection that blocks programmatic downloads. All HTTP requests to Excel file URLs return `403 Forbidden` with `cf-mitigated: challenge` headers.
 
-```
-Error in get_raw_enr(end_year):
-  Failed to download enrollment data for year 2018
-```
+**pkgdown Fix Applied:**
+- Vignette `enrollment_hooks.Rmd` now uses `eval=FALSE` to skip code execution during builds
+- Created `ERRATA.md` documenting the data access issue
+- This allows pkgdown to build successfully without network access
 
-**Root cause:** The Arizona Department of Education has changed their file URL structure. The URL patterns in `build_enrollment_urls()` no longer match the actual file locations on azed.gov.
+**Remaining Work:**
+1. Monitor ADE website for changes to Cloudflare configuration
+2. Consider adding sample/cached data for offline usage
+3. Explore browser automation (Selenium/Playwright) as alternative download method
+4. Contact ADE (dataoperations@azed.gov) about programmatic access options
 
-**Impact:**
-- Vignette `enrollment_hooks.Rmd` cannot render (requires `fetch_enr_multi(2018:2025)`)
-- pkgdown site build fails at article building step
-- Core package functionality (fetching enrollment data) is broken
-
-**Attempted URLs (all return 404):**
-- `https://www.azed.gov/sites/default/files/2018/04/Oct1EnrollmentFY2018.xlsx`
-- `https://www.azed.gov/sites/default/files/2018/FY18%20Oct%201%20Enrollment%20Redacted.xlsx`
-- (25+ URL patterns tried per year, all failing)
-
-**To fix:**
-1. Navigate to https://www.azed.gov/accountability-research to find current enrollment file locations
-2. Update `build_enrollment_urls()` in `R/enrollment.R` with correct URL patterns
-3. Test with multiple years (2020-2024) to ensure patterns work
-4. Re-run `pkgdown::build_site()` to verify vignette renders
-
-**Workaround:**
-None available without updating package code. The `get_available_years()` function reports 2011-2026 as available, but this is a documentation claim, not a verification of actual data availability.
+**See also:** `ERRATA.md` for full technical details.
