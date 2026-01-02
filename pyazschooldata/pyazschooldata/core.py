@@ -136,7 +136,7 @@ def get_available_years() -> dict:
                 "min_year": int(r_result.rx2("min_year")[0]),
                 "max_year": int(r_result.rx2("max_year")[0]),
             }
-        # Fallback: try names attribute
+        # Fallback: try names attribute (for NamedList from rpy2)
         if hasattr(r_result, "names"):
             names = r_result.names
             if callable(names):
@@ -144,8 +144,15 @@ def get_available_years() -> dict:
             names_list = list(names)
             min_idx = names_list.index("min_year")
             max_idx = names_list.index("max_year")
+            # Values may be numpy arrays, so extract [0] element
+            min_val = r_result[min_idx]
+            max_val = r_result[max_idx]
+            if hasattr(min_val, "__getitem__"):
+                min_val = min_val[0]
+            if hasattr(max_val, "__getitem__"):
+                max_val = max_val[0]
             return {
-                "min_year": int(r_result[min_idx]),
-                "max_year": int(r_result[max_idx]),
+                "min_year": int(min_val),
+                "max_year": int(max_val),
             }
         raise TypeError(f"Unexpected return type from get_available_years: {type(r_result)}")
