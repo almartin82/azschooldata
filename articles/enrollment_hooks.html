@@ -72,8 +72,13 @@
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/get_theme.html" class="external-link">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>This vignette explores Arizona’s public school enrollment data,
-surfacing key trends and demographic patterns across 15 years of data
-(2011-2025).</p>
+surfacing key trends and demographic patterns across 8 years of data
+(2018-2025).</p>
+<blockquote>
+<p><strong>Note:</strong> Code examples in this vignette require network
+access to download data from the Arizona Department of Education. See
+the package README for installation and usage instructions.</p>
+</blockquote>
 <hr>
 <div class="section level2">
 <h2 id="arizonas-enrollment-boom-has-stalled">1. Arizona’s enrollment boom has stalled<a class="anchor" aria-label="anchor" href="#arizonas-enrollment-boom-has-stalled"></a>
@@ -82,7 +87,7 @@ surfacing key trends and demographic patterns across 15 years of data
 growth has slowed dramatically. The state peaked around 2019 and has
 been flat since.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fetch_enr_multi.html">fetch_enr_multi</a></span><span class="op">(</span><span class="fl">2011</span><span class="op">:</span><span class="fl">2025</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">enr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fetch_enr_multi.html">fetch_enr_multi</a></span><span class="op">(</span><span class="fl">2018</span><span class="op">:</span><span class="fl">2025</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">state_totals</span> <span class="op">&lt;-</span> <span class="va">enr</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_state</span>, <span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -97,8 +102,8 @@ been flat since.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span>, color <span class="op">=</span> <span class="st">"#BF0A30"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="va"><a href="https://scales.r-lib.org/reference/comma.html" class="external-link">comma</a></span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Arizona Public School Enrollment (2011-2025)"</span>,</span>
-<span>    subtitle <span class="op">=</span> <span class="st">"Rapid growth has stalled in recent years"</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"Arizona Public School Enrollment (2018-2025)"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Growth has stalled in recent years"</span>,</span>
 <span>    x <span class="op">=</span> <span class="st">"School Year (ending)"</span>,</span>
 <span>    y <span class="op">=</span> <span class="st">"Total Enrollment"</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>

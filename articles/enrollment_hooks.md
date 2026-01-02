@@ -10,8 +10,12 @@ theme_set(theme_minimal(base_size = 14))
 ```
 
 This vignette explores Arizona’s public school enrollment data,
-surfacing key trends and demographic patterns across 15 years of data
-(2011-2025).
+surfacing key trends and demographic patterns across 8 years of data
+(2018-2025).
+
+> **Note:** Code examples in this vignette require network access to
+> download data from the Arizona Department of Education. See the
+> package README for installation and usage instructions.
 
 ------------------------------------------------------------------------
 
@@ -22,7 +26,7 @@ growth has slowed dramatically. The state peaked around 2019 and has
 been flat since.
 
 ``` r
-enr <- fetch_enr_multi(2011:2025)
+enr <- fetch_enr_multi(2018:2025)
 
 state_totals <- enr |>
   filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL") |>
@@ -39,8 +43,8 @@ ggplot(state_totals, aes(x = end_year, y = n_students)) +
   geom_point(size = 3, color = "#BF0A30") +
   scale_y_continuous(labels = scales::comma) +
   labs(
-    title = "Arizona Public School Enrollment (2011-2025)",
-    subtitle = "Rapid growth has stalled in recent years",
+    title = "Arizona Public School Enrollment (2018-2025)",
+    subtitle = "Growth has stalled in recent years",
     x = "School Year (ending)",
     y = "Total Enrollment"
   )

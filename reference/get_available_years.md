@@ -30,13 +30,13 @@ A list with three elements:
 ``` r
 get_available_years()
 #> $min_year
-#> [1] 2011
+#> [1] 2018
 #> 
 #> $max_year
 #> [1] 2026
 #> 
 #> $description
-#> [1] "Arizona enrollment data is available from 2010-11 (end_year 2011) through 2025-26 (end_year 2026). Data comes from the October 1 enrollment reports published by the Arizona Department of Education. Earlier years (1990s-2000s) exist only as PDF reports and are not currently supported."
+#> [1] "Arizona enrollment data is available from 2017-18 (end_year 2018) through 2025-26 (end_year 2026). Data comes from the October 1 enrollment reports published by the Arizona Department of Education. Older data (2011-2017) may be available through manual requests to ADE. Earlier years (1990s-2000s) exist only as PDF reports and are not currently supported."
 #> 
 # Returns list with min_year, max_year, and description
 ```
