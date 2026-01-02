@@ -1,0 +1,12 @@
+^doc$
+^Meta$
+^ERRATA\.md$
+^TODO\.md$
+^CLAUDE\.md$
+^\.github$
+^docs$
+^_pkgdown\.yml$
+^\.venv$
+^\.pytest_cache$
+^pyazschooldata$
+^tests/__pycache__$
