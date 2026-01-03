@@ -8,11 +8,12 @@ fetch_enr(end_year, tidy = TRUE, use_cache = TRUE)
 }
 \arguments{
 \item{end_year}{A school year. Year is the end of the academic year - eg 2023-24
-school year is year '2024'. Valid values are 2011-2026.
+school year is year '2024'. Valid values are 2018-2026.
 
 Data availability notes:
 \itemize{
-\item Excel files are available from FY2011 (end_year 2011) onwards
+\item Excel files are available from FY2018 (end_year 2018) onwards
+\item Older data (2011-2017) may be available through manual requests to ADE
 \item Earlier years (1990s-2000s) exist only as PDF reports and are not supported
 \item ADE uses varying URL patterns across years; download may take a few seconds
 as the package tries multiple URL patterns
@@ -44,8 +45,8 @@ enr_wide <- fetch_enr(2024, tidy = FALSE)
 # Force fresh download (ignore cache)
 enr_fresh <- fetch_enr(2024, use_cache = FALSE)
 
-# Get historical data from 2011
-enr_2011 <- fetch_enr(2011)
+# Get historical data from 2018
+enr_2018 <- fetch_enr(2018)
 
 # Filter to specific district
 phoenix_union <- enr_2024 |>

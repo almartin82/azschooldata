@@ -8,7 +8,7 @@ fetch_enr_multi(end_years, tidy = TRUE, use_cache = TRUE)
 }
 \arguments{
 \item{end_years}{Vector of school year ends (e.g., c(2022, 2023, 2024)).
-Valid range is 2011-2026.}
+Valid range is 2018-2026.}
 
 \item{tidy}{If TRUE (default), returns data in long (tidy) format.}
 
@@ -25,8 +25,8 @@ Downloads and combines enrollment data for multiple school years.
 # Get 3 years of data
 enr_multi <- fetch_enr_multi(2022:2024)
 
-# Get full historical range
-enr_all <- fetch_enr_multi(2011:2025)
+# Get full available range
+enr_all <- fetch_enr_multi(2018:2025)
 
 # Track enrollment trends
 enr_multi |>
