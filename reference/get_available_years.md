@@ -33,10 +33,10 @@ get_available_years()
 #> [1] 2018
 #> 
 #> $max_year
-#> [1] 2026
+#> [1] 2024
 #> 
 #> $description
-#> [1] "Arizona enrollment data is available from 2017-18 (end_year 2018) through 2025-26 (end_year 2026). Data comes from the October 1 enrollment reports published by the Arizona Department of Education. Older data (2011-2017) may be available through manual requests to ADE. Earlier years (1990s-2000s) exist only as PDF reports and are not currently supported."
+#> [1] "Arizona enrollment data is available from 2017-18 (end_year 2018) through 2023-24 (end_year 2024). Data comes from the October 1 enrollment reports published by the Arizona Department of Education. Older data (2011-2017) may be available through manual requests to ADE. Earlier years (1990s-2000s) exist only as PDF reports and are not currently supported."
 #> 
 # Returns list with min_year, max_year, and description
 ```
