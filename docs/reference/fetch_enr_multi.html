@@ -51,7 +51,7 @@
 
 <dl><dt id="arg-end-years">end_years<a class="anchor" aria-label="anchor" href="#arg-end-years"></a></dt>
 <dd><p>Vector of school year ends (e.g., c(2022, 2023, 2024)).
-Valid range is 2018-2026.</p></dd>
+Valid range is 2011-2026.</p></dd>
 
 
 <dt id="arg-tidy">tidy<a class="anchor" aria-label="anchor" href="#arg-tidy"></a></dt>
@@ -73,8 +73,8 @@ Valid range is 2018-2026.</p></dd>
 <span class="r-in"><span><span class="co"># Get 3 years of data</span></span></span>
 <span class="r-in"><span><span class="va">enr_multi</span> <span class="op">&lt;-</span> <span class="fu">fetch_enr_multi</span><span class="op">(</span><span class="fl">2022</span><span class="op">:</span><span class="fl">2024</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Get full available range</span></span></span>
-<span class="r-in"><span><span class="va">enr_all</span> <span class="op">&lt;-</span> <span class="fu">fetch_enr_multi</span><span class="op">(</span><span class="fl">2018</span><span class="op">:</span><span class="fl">2025</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Get full historical range</span></span></span>
+<span class="r-in"><span><span class="va">enr_all</span> <span class="op">&lt;-</span> <span class="fu">fetch_enr_multi</span><span class="op">(</span><span class="fl">2011</span><span class="op">:</span><span class="fl">2025</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Track enrollment trends</span></span></span>
 <span class="r-in"><span><span class="va">enr_multi</span> <span class="op">|&gt;</span></span></span>
