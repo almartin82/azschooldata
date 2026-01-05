@@ -9,8 +9,8 @@ template:
 
 home:
   links:
-  - text: "10 Insights from Arizona Enrollment Data"
-    href: articles/enrollment_hooks.html
+  - text: "Arizona School Enrollment Data"
+    href: articles/enrollment_simple.html
   - text: "Part of the 50 State Schooldata Family"
     href: https://github.com/almartin82/njschooldata
 
@@ -18,13 +18,14 @@ articles:
 - title: Key Insights
   navbar: ~
   contents:
-  - enrollment_hooks
+  - enrollment_simple
 
 reference:
 - title: Fetch Data
   contents:
   - fetch_enr
   - fetch_enr_multi
+  - fetch_directory
   - get_available_years
 
 - title: Process & Tidy

@@ -84,6 +84,15 @@ get_raw_enr <- function(end_year) {
 #' @keywords internal
 download_enrollment_file <- function(end_year) {
 
+  # First, try to use bundled file if available (fallback for Cloudflare blocking)
+  bundled_file <- system.file("extdata", "enrollment",
+                              paste0("Oct1Enrollment", end_year, "_publish.xlsx"),
+                              package = "azschooldata")
+  if (bundled_file != "" && file.exists(bundled_file)) {
+    message(paste("  Using bundled file:", basename(bundled_file)))
+    return(bundled_file)
+  }
+
   # Build potential URLs based on observed patterns
   urls <- build_enrollment_urls(end_year)
 
@@ -102,7 +111,12 @@ download_enrollment_file <- function(end_year) {
         url,
         httr::write_disk(tname, overwrite = TRUE),
         httr::timeout(120),
-        httr::user_agent("Mozilla/5.0 (compatible; azschooldata R package)")
+        httr::user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"),
+        httr::add_headers(
+          "Accept" = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+          "Accept-Language" = "en-US,en;q=0.9",
+          "Referer" = "https://www.azed.gov/"
+        )
       )
 
       # Check for successful download

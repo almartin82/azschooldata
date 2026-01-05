@@ -20,7 +20,7 @@ Education's October 1 enrollment reports."></head><body>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/enrollment_hooks.html">10 Insights from Arizona School Enrollment Data</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/enrollment_simple.html">Arizona School Enrollment Data</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -54,8 +54,9 @@ Education's October 1 enrollment reports.</p>
 
 <dl><dt id="arg-end-year">end_year<a class="anchor" aria-label="anchor" href="#arg-end-year"></a></dt>
 <dd><p>A school year. Year is the end of the academic year - eg 2023-24
-school year is year '2024'. Valid values are 2011-2026.</p>
-<p>Data availability notes:</p><ul><li><p>Excel files are available from FY2011 (end_year 2011) onwards</p></li>
+school year is year '2024'. Valid values are 2018-2026.</p>
+<p>Data availability notes:</p><ul><li><p>Excel files are available from FY2018 (end_year 2018) onwards</p></li>
+<li><p>Older data (2011-2017) may be available through manual requests to ADE</p></li>
 <li><p>Earlier years (1990s-2000s) exist only as PDF reports and are not supported</p></li>
 <li><p>ADE uses varying URL patterns across years; download may take a few seconds
 as the package tries multiple URL patterns</p></li>
@@ -91,8 +92,8 @@ Tidy format pivots these counts into subgroup and grade_level columns.</p>
 <span class="r-in"><span><span class="co"># Force fresh download (ignore cache)</span></span></span>
 <span class="r-in"><span><span class="va">enr_fresh</span> <span class="op">&lt;-</span> <span class="fu">fetch_enr</span><span class="op">(</span><span class="fl">2024</span>, use_cache <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Get historical data from 2011</span></span></span>
-<span class="r-in"><span><span class="va">enr_2011</span> <span class="op">&lt;-</span> <span class="fu">fetch_enr</span><span class="op">(</span><span class="fl">2011</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Get historical data from 2018</span></span></span>
+<span class="r-in"><span><span class="va">enr_2018</span> <span class="op">&lt;-</span> <span class="fu">fetch_enr</span><span class="op">(</span><span class="fl">2018</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Filter to specific district</span></span></span>
 <span class="r-in"><span><span class="va">phoenix_union</span> <span class="op">&lt;-</span> <span class="va">enr_2024</span> <span class="op">|&gt;</span></span></span>

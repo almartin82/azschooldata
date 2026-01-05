@@ -6,6 +6,8 @@
   : Fetch Arizona enrollment data
 - [`fetch_enr_multi()`](https://almartin82.github.io/azschooldata/reference/fetch_enr_multi.md)
   : Fetch enrollment data for multiple years
+- [`fetch_directory()`](https://almartin82.github.io/azschooldata/reference/fetch_directory.md)
+  : Fetch Arizona school directory data
 - [`get_available_years()`](https://almartin82.github.io/azschooldata/reference/get_available_years.md)
   : Get available years for Arizona enrollment data
 
@@ -24,3 +26,5 @@
   : Show cache status
 - [`clear_cache()`](https://almartin82.github.io/azschooldata/reference/clear_cache.md)
   : Clear the azschooldata cache
+- [`clear_directory_cache()`](https://almartin82.github.io/azschooldata/reference/clear_directory_cache.md)
+  : Clear school directory cache

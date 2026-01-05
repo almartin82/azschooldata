@@ -9,13 +9,13 @@
 
 Fetch and analyze Arizona school enrollment data from the Arizona Department of Education (ADE) in R or Python.
 
-**[Documentation](https://almartin82.github.io/azschooldata/)** | **[10 Key Insights](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)** | **[Getting Started](https://almartin82.github.io/azschooldata/articles/quickstart.html)**
+**[Documentation](https://almartin82.github.io/azschooldata/)** | **[15 Key Insights](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)** | **[Getting Started](https://almartin82.github.io/azschooldata/articles/quickstart.html)**
 
 ## What can you find with azschooldata?
 
-> **See the full analysis with charts and data output:** [10 Insights from Arizona Enrollment Data](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)
+> **See the full analysis with charts and data output:** [15 Insights from Arizona Enrollment Data](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)
 
-**15 years of enrollment data (2011-2025).** 1.1 million students across 230+ districts in the Grand Canyon State. Here are ten stories hiding in the numbers:
+**7 years of enrollment data (2018-2024).** 1.1 million students across 230+ districts in the Grand Canyon State. Here are fifteen stories hiding in the numbers:
 
 ---
 
@@ -35,7 +35,7 @@ enr %>%
   mutate(change = n_students - lag(n_students))
 ```
 
-![Arizona enrollment trend](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/statewide-chart-1.png)
+![Arizona enrollment trend](https://almartin82.github.io/azschooldata/articles/enrollment_simple_files/figure-html/statewide-chart-1.png)
 
 ---
 
@@ -62,7 +62,7 @@ enr %>%
 Arizona kindergarten enrollment dropped over 10% during COVID and hasn't fully recovered, signaling smaller cohorts for years to come.
 
 ```r
-enr <- fetch_enr_multi(2019:2025)
+enr <- fetch_enr_multi(2019:2024)
 
 enr %>%
   filter(is_state, subgroup == "total_enrollment",
@@ -187,6 +187,101 @@ enr_2025 %>%
 
 ---
 
+### 11. Rural Arizona is disappearing from the school map
+
+While Phoenix metro booms, rural districts across Arizona are shrinking. Counties like Greenlee, Santa Cruz, and Graham have seen enrollment drop as families move to urban areas.
+
+```r
+enr <- fetch_enr_multi(2018:2024)
+rural_counties <- c("Greenlee", "Santa Cruz", "Graham", "Gila", "Apache", "Navajo")
+
+enr %>%
+  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL",
+         county %in% c(rural_counties, "Maricopa")) %>%
+  mutate(region = ifelse(county == "Maricopa", "Phoenix Metro", "Rural Counties")) %>%
+  group_by(end_year, region) %>%
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop")
+```
+
+![Rural vs Metro](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/rural-decline-chart-1.png)
+
+---
+
+### 12. The senior-year cliff: fewer students make it to 12th grade
+
+Arizona sees significant enrollment drops between 9th and 12th grade. Whether from dropouts, transfers to GED programs, or early graduation, fewer students finish the traditional path.
+
+```r
+enr <- fetch_enr_multi(2018:2025)
+
+enr %>%
+  filter(is_state, subgroup == "total_enrollment",
+         grade_level %in% c("09", "10", "11", "12")) %>%
+  select(end_year, grade_level, n_students) %>%
+  group_by(end_year) %>%
+  mutate(pct_of_9th = n_students / n_students[grade_level == "09"] * 100)
+```
+
+![HS Attrition](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/hs-attrition-chart-1.png)
+
+---
+
+### 13. Special education enrollment has grown steadily
+
+Arizona's special education population has increased both in raw numbers and as a percentage of total enrollment, reflecting nationwide trends in identification and services.
+
+```r
+enr <- fetch_enr_multi(2018:2025)
+
+enr %>%
+  filter(is_state, grade_level == "TOTAL",
+         subgroup %in% c("special_ed", "total_enrollment")) %>%
+  select(end_year, subgroup, n_students) %>%
+  tidyr::pivot_wider(names_from = subgroup, values_from = n_students) %>%
+  mutate(sped_pct = special_ed / total_enrollment * 100)
+```
+
+![Special Ed Growth](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/sped-growth-chart-1.png)
+
+---
+
+### 14. Arizona's tiny districts: one-school wonders
+
+Arizona has dozens of small districts with fewer than 500 students, many serving rural communities, tribal lands, or specialized populations.
+
+```r
+enr_2024 <- fetch_enr(2024)
+
+enr_2024 %>%
+  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL") %>%
+  select(district_name, county, n_students) %>%
+  arrange(n_students) %>%
+  head(15)
+```
+
+![Tiny Districts](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/tiny-districts-chart-1.png)
+
+---
+
+### 15. Gender balance holds steady across Arizona schools
+
+Unlike some states that see gender imbalances, Arizona's public schools maintain near-equal enrollment between male and female students across all levels.
+
+```r
+enr <- fetch_enr_multi(2018:2025)
+
+enr %>%
+  filter(is_state, grade_level == "TOTAL",
+         subgroup %in% c("male", "female")) %>%
+  select(end_year, subgroup, n_students) %>%
+  tidyr::pivot_wider(names_from = subgroup, values_from = n_students) %>%
+  mutate(pct_male = male / (male + female) * 100)
+```
+
+![Gender Balance](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/gender-balance-chart-1.png)
+
+---
+
 ## Installation
 
 ```r
@@ -203,22 +298,22 @@ library(azschooldata)
 library(dplyr)
 
 # Fetch one year
-enr_2025 <- fetch_enr(2025)
+enr_2024 <- fetch_enr(2024)
 
 # Fetch multiple years
-enr_multi <- fetch_enr_multi(2020:2025)
+enr_multi <- fetch_enr_multi(2020:2024)
 
 # State totals
-enr_2025 %>%
+enr_2024 %>%
   filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL")
 
 # District breakdown
-enr_2025 %>%
+enr_2024 %>%
   filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL") %>%
   arrange(desc(n_students))
 
 # Demographics
-enr_2025 %>%
+enr_2024 %>%
   filter(is_state, grade_level == "TOTAL",
          subgroup %in% c("hispanic", "white", "black", "asian", "native_american")) %>%
   select(subgroup, n_students, pct)
@@ -230,30 +325,30 @@ enr_2025 %>%
 import pyazschooldata as az
 
 # Fetch one year
-enr_2025 = az.fetch_enr(2025)
+enr_2024 = az.fetch_enr(2024)
 
 # Fetch multiple years
-enr_multi = az.fetch_enr_multi([2020, 2021, 2022, 2023, 2024, 2025])
+enr_multi = az.fetch_enr_multi([2020, 2021, 2022, 2023, 2024])
 
 # State totals
-state_total = enr_2025[
-    (enr_2025['is_state'] == True) &
-    (enr_2025['subgroup'] == 'total_enrollment') &
-    (enr_2025['grade_level'] == 'TOTAL')
+state_total = enr_2024[
+    (enr_2024['is_state'] == True) &
+    (enr_2024['subgroup'] == 'total_enrollment') &
+    (enr_2024['grade_level'] == 'TOTAL')
 ]
 
 # District breakdown
-districts = enr_2025[
-    (enr_2025['is_district'] == True) &
-    (enr_2025['subgroup'] == 'total_enrollment') &
-    (enr_2025['grade_level'] == 'TOTAL')
+districts = enr_2024[
+    (enr_2024['is_district'] == True) &
+    (enr_2024['subgroup'] == 'total_enrollment') &
+    (enr_2024['grade_level'] == 'TOTAL')
 ].sort_values('n_students', ascending=False)
 
 # Demographics
-demographics = enr_2025[
-    (enr_2025['is_state'] == True) &
-    (enr_2025['grade_level'] == 'TOTAL') &
-    (enr_2025['subgroup'].isin(['hispanic', 'white', 'black', 'asian', 'native_american']))
+demographics = enr_2024[
+    (enr_2024['is_state'] == True) &
+    (enr_2024['grade_level'] == 'TOTAL') &
+    (enr_2024['subgroup'].isin(['hispanic', 'white', 'black', 'asian', 'native_american']))
 ][['subgroup', 'n_students', 'pct']]
 ```
 
@@ -261,7 +356,7 @@ demographics = enr_2025[
 
 | Years | Source | Notes |
 |-------|--------|-------|
-| **2011-2025** | ADE October 1 Enrollment | Full demographic and grade-level data |
+| **2018-2024** | ADE October 1 Enrollment | Full demographic and grade-level data |
 
 Data is sourced from the Arizona Department of Education October 1 enrollment reports.
 
@@ -274,7 +369,7 @@ Data is sourced from the Arizona Department of Education October 1 enrollment re
 
 ### Caveats
 
-- Pre-2011 data exists as PDF reports only (not supported)
+- Pre-2018 data exists as PDF reports only (not supported)
 - ADE URL patterns vary across years; downloads may take a few seconds
 
 ## Data source

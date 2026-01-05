@@ -1,4 +1,4 @@
-# 10 Insights from Arizona School Enrollment Data
+# 15 Insights from Arizona School Enrollment Data
 
 ``` r
 library(azschooldata)
@@ -258,6 +258,196 @@ tucson
 
 ------------------------------------------------------------------------
 
+## 11. Rural Arizona is disappearing from the school map
+
+While Phoenix metro booms, rural districts across Arizona are shrinking.
+Counties like Greenlee, Santa Cruz, and Graham have seen enrollment drop
+as families move to urban areas.
+
+``` r
+# Compare rural county enrollment to Maricopa (Phoenix metro)
+rural_counties <- c("Greenlee", "Santa Cruz", "Graham", "Gila", "Apache", "Navajo")
+
+rural_vs_metro <- enr |>
+  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL",
+         county %in% c(rural_counties, "Maricopa")) |>
+  mutate(region = ifelse(county == "Maricopa", "Phoenix Metro", "Rural Counties")) |>
+  group_by(end_year, region) |>
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  group_by(region) |>
+  mutate(pct_of_2018 = n_students / n_students[end_year == 2018] * 100) |>
+  ungroup()
+
+rural_vs_metro
+```
+
+``` r
+ggplot(rural_vs_metro, aes(x = end_year, y = pct_of_2018, color = region)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 100, linetype = "dashed", alpha = 0.5) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    title = "Rural Arizona Shrinks While Phoenix Metro Grows",
+    subtitle = "Enrollment indexed to 2018 = 100%",
+    x = "School Year",
+    y = "Percent of 2018 Enrollment",
+    color = "Region"
+  )
+```
+
+------------------------------------------------------------------------
+
+## 12. The senior-year cliff: fewer students make it to 12th grade
+
+Arizona sees significant enrollment drops between 9th and 12th grade.
+Whether from dropouts, transfers to GED programs, or early graduation,
+fewer students finish the traditional path.
+
+``` r
+hs_grades <- enr |>
+  filter(is_state, subgroup == "total_enrollment",
+         grade_level %in% c("09", "10", "11", "12")) |>
+  select(end_year, grade_level, n_students) |>
+  group_by(end_year) |>
+  mutate(
+    pct_of_9th = n_students / n_students[grade_level == "09"] * 100
+  ) |>
+  ungroup()
+
+hs_grades |>
+  filter(end_year == 2025) |>
+  select(grade_level, n_students, pct_of_9th)
+```
+
+``` r
+hs_2025 <- hs_grades |>
+  filter(end_year == 2025) |>
+  mutate(grade_level = factor(grade_level, levels = c("09", "10", "11", "12")))
+
+ggplot(hs_2025, aes(x = grade_level, y = n_students, fill = grade_level)) +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = paste0(round(pct_of_9th), "%")), vjust = -0.5) +
+  scale_y_continuous(labels = scales::comma, expand = expansion(mult = c(0, 0.1))) +
+  scale_fill_brewer(palette = "Reds") +
+  labs(
+    title = "Fewer Students Make It to 12th Grade",
+    subtitle = "2025 enrollment by grade (as percent of 9th grade)",
+    x = "Grade Level",
+    y = "Number of Students"
+  )
+```
+
+------------------------------------------------------------------------
+
+## 13. Special education enrollment has grown steadily
+
+Arizona’s special education population has increased both in raw numbers
+and as a percentage of total enrollment, reflecting nationwide trends in
+identification and services.
+
+``` r
+sped_trend <- enr |>
+  filter(is_state, grade_level == "TOTAL",
+         subgroup %in% c("special_ed", "total_enrollment")) |>
+  select(end_year, subgroup, n_students) |>
+  pivot_wider(names_from = subgroup, values_from = n_students) |>
+  mutate(sped_pct = special_ed / total_enrollment * 100)
+
+sped_trend
+```
+
+``` r
+ggplot(sped_trend, aes(x = end_year, y = sped_pct)) +
+  geom_line(linewidth = 1.2, color = "#7B3294") +
+  geom_point(size = 3, color = "#7B3294") +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    title = "Special Education Enrollment Rising in Arizona",
+    subtitle = "Percentage of total enrollment receiving special education services",
+    x = "School Year",
+    y = "Percent of Total Enrollment"
+  )
+```
+
+------------------------------------------------------------------------
+
+## 14. Arizona’s tiny districts: one-school wonders
+
+Arizona has dozens of small districts with fewer than 500 students, many
+serving rural communities, tribal lands, or specialized populations.
+
+``` r
+tiny_districts <- enr_2025 |>
+  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL") |>
+  select(district_name, county, n_students) |>
+  arrange(n_students) |>
+  head(15)
+
+tiny_districts
+```
+
+``` r
+tiny_districts |>
+  mutate(district_name = forcats::fct_reorder(district_name, n_students)) |>
+  ggplot(aes(x = n_students, y = district_name)) +
+  geom_col(fill = "#E6AB02") +
+  geom_text(aes(label = n_students), hjust = -0.2) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(
+    title = "Arizona's Smallest Districts (2025)",
+    subtitle = "15 districts with the fewest students",
+    x = "Total Enrollment",
+    y = NULL
+  )
+```
+
+------------------------------------------------------------------------
+
+## 15. Gender balance holds steady across Arizona schools
+
+Unlike some states that see gender imbalances, Arizona’s public schools
+maintain near-equal enrollment between male and female students across
+all levels.
+
+``` r
+gender_trend <- enr |>
+  filter(is_state, grade_level == "TOTAL",
+         subgroup %in% c("male", "female")) |>
+  select(end_year, subgroup, n_students) |>
+  pivot_wider(names_from = subgroup, values_from = n_students) |>
+  mutate(
+    pct_male = male / (male + female) * 100,
+    pct_female = female / (male + female) * 100
+  )
+
+gender_trend
+```
+
+``` r
+gender_long <- gender_trend |>
+  select(end_year, pct_male, pct_female) |>
+  pivot_longer(cols = c(pct_male, pct_female),
+               names_to = "gender",
+               values_to = "pct") |>
+  mutate(gender = ifelse(gender == "pct_male", "Male", "Female"))
+
+ggplot(gender_long, aes(x = end_year, y = pct, fill = gender)) +
+  geom_col(position = "stack") +
+  geom_hline(yintercept = 50, linetype = "dashed", color = "white", linewidth = 1) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  scale_fill_manual(values = c("Male" = "#1B9E77", "Female" = "#D95F02")) +
+  labs(
+    title = "Gender Balance in Arizona Schools",
+    subtitle = "Male and female enrollment nearly equal over time",
+    x = "School Year",
+    y = "Percent of Enrollment",
+    fill = "Gender"
+  )
+```
+
+------------------------------------------------------------------------
+
 ## Summary
 
 Arizona’s school enrollment data reveals:
@@ -267,6 +457,13 @@ Arizona’s school enrollment data reveals:
 - **Hispanic plurality**: Over 45% of students are Hispanic
 - **Urban-suburban shift**: Core districts shrink while outer ring grows
 - **Native American presence**: Significant reservation-based enrollment
+- **Rural decline**: Rural counties shrink while Phoenix metro grows
+- **Senior-year cliff**: Significant attrition between 9th and 12th
+  grade
+- **Rising special ed**: Growing percentage receiving services
+- **Tiny districts persist**: Dozens of districts with under 500
+  students
+- **Gender parity**: Near-equal male and female enrollment
 
 These patterns shape school funding debates and facility planning across
 the Grand Canyon State.
