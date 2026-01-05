@@ -40,7 +40,7 @@ enr %>%
 ```
 
 ![Arizona enrollment
-trend](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/statewide-chart-1.png)
+trend](https://almartin82.github.io/azschooldata/articles/enrollment_simple_files/figure-html/statewide-chart-1.png)
 
 Arizona enrollment trend
 

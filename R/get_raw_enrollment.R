@@ -318,7 +318,14 @@ parse_era1_excel <- function(excel_path, end_year) {
 
 #' Parse Era 2 Excel file (2018-present)
 #'
-#' Newer ADE enrollment files may have different structure.
+#' Newer ADE enrollment files have multiple sheets that must be merged:
+#' - School by Grade (grade-level enrollment)
+#' - School By Gender (male/female breakdown)
+#' - School by Ethnicity (race/ethnicity breakdown)
+#' - School by Subgroup (special populations: EL, SPED, FRL)
+#' - LEA by Grade (district grade enrollment)
+#' - LEA by Gender (district gender breakdown)
+#' - LEA by Ethnicity (district race/ethnicity)
 #'
 #' @param excel_path Path to downloaded Excel file
 #' @param end_year School year end
@@ -329,55 +336,221 @@ parse_era2_excel <- function(excel_path, end_year) {
   sheets <- readxl::excel_sheets(excel_path)
   message(paste("  Available sheets:", paste(sheets, collapse = ", ")))
 
-  # Try to identify school vs LEA sheets
-  # Common patterns: "School", "LEA", "District", "State", "County"
-  school_sheet <- grep("school|site|campus", sheets, ignore.case = TRUE, value = TRUE)
-  lea_sheet <- grep("lea|district|entity|charter", sheets, ignore.case = TRUE, value = TRUE)
-
-  # If we can't find specific sheets, use position-based logic
-  if (length(school_sheet) == 0 && length(lea_sheet) == 0) {
-    # Many files have: State, County, LEA, School order
-    if (length(sheets) >= 4) {
-      school_sheet <- sheets[4]  # School is often 4th
-      lea_sheet <- sheets[3]     # LEA is often 3rd
-    } else if (length(sheets) >= 2) {
-      school_sheet <- sheets[2]
-      lea_sheet <- sheets[1]
-    } else {
-      school_sheet <- sheets[1]
-      lea_sheet <- sheets[1]
-    }
-  } else {
-    if (length(school_sheet) == 0) school_sheet <- sheets[length(sheets)]
-    if (length(lea_sheet) == 0) lea_sheet <- sheets[1]
-    school_sheet <- school_sheet[1]
-    lea_sheet <- lea_sheet[1]
-  }
-
-  message(paste("  Reading school data from sheet:", school_sheet))
-  school_data <- readxl::read_excel(
+  # Read and merge school-level data from multiple sheets
+  school_data <- read_and_merge_sheets(
     excel_path,
-    sheet = school_sheet,
-    col_types = "text",
-    .name_repair = "minimal"
+    sheets,
+    level = "school"
   )
 
-  message(paste("  Reading LEA data from sheet:", lea_sheet))
-  lea_data <- readxl::read_excel(
+  # Read and merge LEA/district-level data from multiple sheets
+  district_data <- read_and_merge_sheets(
     excel_path,
-    sheet = lea_sheet,
-    col_types = "text",
-    .name_repair = "minimal"
+    sheets,
+    level = "lea"
   )
 
   # Add end_year
   school_data$end_year <- end_year
-  lea_data$end_year <- end_year
+  district_data$end_year <- end_year
 
   list(
     school = school_data,
-    district = lea_data
+    district = district_data
   )
+}
+
+
+#' Read and merge enrollment sheets
+#'
+#' Reads data from Grade, Gender, Ethnicity, and Subgroup sheets
+#' and merges them into a single wide-format dataframe.
+#'
+#' @param excel_path Path to Excel file
+#' @param sheets Vector of sheet names
+#' @param level Either "school" or "lea"
+#' @return Merged data frame
+#' @keywords internal
+read_and_merge_sheets <- function(excel_path, sheets, level) {
+
+  # Find relevant sheets for this level
+  if (level == "school") {
+    grade_sheet <- "School by Grade"
+    gender_sheet <- "School By Gender"
+    ethnicity_sheet <- "School by Ethnicity"
+    subgroup_sheet <- "School by Subgroup"
+    entity_col <- "School Entity ID"
+  } else {
+    grade_sheet <- "LEA by Grade"
+    gender_sheet <- "LEA by Gender"
+    ethnicity_sheet <- "LEA by Ethnicity"
+    subgroup_sheet <- NULL  # LEA by Subgroup doesn't exist in all years
+    entity_col <- "LEA Entity ID"
+  }
+
+  # Read Grade sheet (base data with entity IDs and names)
+  if (grade_sheet %in% sheets) {
+    message(paste("  Reading", level, "data from sheet:", grade_sheet))
+    base_data <- readxl::read_excel(
+      excel_path,
+      sheet = grade_sheet,
+      col_types = "text",
+      .name_repair = "minimal"
+    )
+  } else {
+    stop(paste("Required sheet not found:", grade_sheet))
+  }
+
+  # Read and merge Gender sheet
+  if (gender_sheet %in% sheets) {
+    message(paste("  Merging gender data from:", gender_sheet))
+    gender_data <- readxl::read_excel(
+      excel_path,
+      sheet = gender_sheet,
+      col_types = "text",
+      .name_repair = "minimal"
+    )
+    base_data <- merge_safely(base_data, gender_data, entity_col)
+  }
+
+  # Read and merge Ethnicity sheet
+  if (ethnicity_sheet %in% sheets) {
+    message(paste("  Merging ethnicity data from:", ethnicity_sheet))
+    ethnicity_data <- readxl::read_excel(
+      excel_path,
+      sheet = ethnicity_sheet,
+      col_types = "text",
+      .name_repair = "minimal"
+    )
+    base_data <- merge_safely(base_data, ethnicity_data, entity_col)
+  }
+
+  # Read and merge Subgroup sheet (school level only)
+  if (!is.null(subgroup_sheet) && subgroup_sheet %in% sheets) {
+    message(paste("  Merging subgroup data from:", subgroup_sheet))
+    subgroup_data <- readxl::read_excel(
+      excel_path,
+      sheet = subgroup_sheet,
+      col_types = "text",
+      .name_repair = "minimal"
+    )
+    base_data <- merge_subgroup_data(base_data, subgroup_data, entity_col)
+  }
+
+  base_data
+}
+
+
+#' Safely merge two dataframes on entity ID
+#'
+#' @param base Base dataframe
+#' @param new_data New dataframe to merge
+#' @param entity_col Name of entity ID column
+#' @return Merged dataframe
+#' @keywords internal
+merge_safely <- function(base, new_data, entity_col) {
+
+  # Check if entity column exists in both dataframes
+  if (!entity_col %in% names(base) || !entity_col %in% names(new_data)) {
+    warning(paste("Entity column", entity_col, "not found in both dataframes, skipping merge"))
+    return(base)
+  }
+
+  # Remove Fiscal Year column from new_data if it exists (it's redundant and causes merge issues)
+  fy_col <- "Fiscal Year"
+  if (fy_col %in% names(new_data)) {
+    new_data <- new_data[, !(names(new_data) %in% fy_col), drop = FALSE]
+  }
+  if (fy_col %in% names(base)) {
+    base <- base[, !(names(base) %in% fy_col), drop = FALSE]
+  }
+
+  # Merge, keeping all columns from both dataframes
+  # Use all = TRUE to keep all rows from both dataframes
+  result <- merge(
+    base,
+    new_data,
+    by = entity_col,
+    all = TRUE,
+    suffixes = c("", ".drop")
+  )
+
+  # Drop duplicate columns (from merge)
+  dup_cols <- grep("\\.drop$", names(result), value = TRUE)
+  if (length(dup_cols) > 0) {
+    result <- result[, !(names(result) %in% dup_cols)]
+  }
+
+  result
+}
+
+
+#' Merge subgroup data (special populations)
+#'
+#' The Subgroup sheet has multiple rows per entity (one per subgroup type).
+#' We need to pivot it wider to get columns for EL, SPED, and FRL.
+#'
+#' @param base Base dataframe
+#' @param subgroup_data Subgroup dataframe
+#' @param entity_col Name of entity ID column
+#' @return Merged dataframe with special population columns
+#' @keywords internal
+merge_subgroup_data <- function(base, subgroup_data, entity_col) {
+
+  # Filter to the subgroup types we need
+  # "English Language Learner" -> lep
+  # "Students with Disabilities" -> special_ed
+  # "Income Eligibility 1 or 2" -> econ_disadv
+  needed_subgroups <- c(
+    "English Language Learner",
+    "Students with Disabilities",
+    "Income Eligibility 1 or 2"
+  )
+
+  # Check if Subgroup column exists
+  if (!"Subgroup" %in% names(subgroup_data)) {
+    return(base)
+  }
+
+  filtered <- subgroup_data[subgroup_data$Subgroup %in% needed_subgroups, ]
+
+  # Pivot to get columns for each subgroup
+  if (nrow(filtered) > 0 && "Total" %in% names(filtered)) {
+    # Convert Total column to numeric (handles "*" and other non-numeric values)
+    filtered$n_students <- safe_numeric(filtered$Total)
+
+    # Create mapping from subgroup name to standard column name
+    subgroup_map <- c(
+      "English Language Learner" = "lep",
+      "Students with Disabilities" = "special_ed",
+      "Income Eligibility 1 or 2" = "econ_disadv"
+    )
+
+    # Filter to only rows with matching subgroups
+    filtered <- filtered[filtered$Subgroup %in% names(subgroup_map), ]
+    filtered$standard_col <- subgroup_map[filtered$Subgroup]
+
+    # Remove Fiscal Year column if present (causes issues with merge)
+    if ("Fiscal Year" %in% names(filtered)) {
+      filtered <- filtered[, !(names(filtered) %in% "Fiscal Year"), drop = FALSE]
+    }
+
+    # Pivot wider using base R reshape (more reliable than tidyr for this case)
+    special_pops <- stats::reshape(
+      filtered[, c(entity_col, "standard_col", "n_students")],
+      idvar = entity_col,
+      timevar = "standard_col",
+      direction = "wide"
+    )
+
+    # Clean up column names after reshape (they get suffix like .n_students)
+    names(special_pops) <- gsub("\\.n_students$", "", names(special_pops))
+
+    # Merge back to base
+    merge_safely(base, special_pops, entity_col)
+  } else {
+    base
+  }
 }
 
 
@@ -401,17 +574,20 @@ get_ade_column_map <- function() {
     total = c("Total", "TotalEnrollment", "Total Enrollment", "Total Count",
               "Enrollment", "All Students"),
 
-    # Demographics - Ethnicity
+    # Demographics - Ethnicity (exact names from ADE Excel files)
     white = c("White", "Caucasian", "White (Not Hispanic)"),
     black = c("Black", "African American", "Black or African American",
-              "African American (Not Hispanic)"),
+              "African American (Not Hispanic)", "Black/African American"),
     hispanic = c("Hispanic", "Hispanic/Latino", "Hispanic or Latino"),
     asian = c("Asian", "Asian (Not Hispanic)"),
     native_american = c("American Indian", "Native American",
-                        "American Indian/Alaska Native", "American Indian or Alaska Native"),
+                        "American Indian/Alaska Native", "American Indian or Alaska Native",
+                        "American Indian/Alaskan Native"),
     pacific_islander = c("Pacific Islander", "Native Hawaiian/Pacific Islander",
-                         "Native Hawaiian or Other Pacific Islander"),
-    multiracial = c("Two or More", "Two or More Races", "Multiracial", "Multi-Racial"),
+                         "Native Hawaiian or Other Pacific Islander",
+                         "Native Hawaiian/Pacific Islander"),
+    multiracial = c("Two or More", "Two or More Races", "Multiracial", "Multi-Racial",
+                    "Multiple Races"),
 
     # Demographics - Gender
     male = c("Male", "Males", "M"),
@@ -420,14 +596,14 @@ get_ade_column_map <- function() {
     # Special populations
     econ_disadv = c("FRL", "Free/Reduced Lunch", "Income Eligibility",
                     "Economically Disadvantaged", "Low Income", "Free Reduced Lunch",
-                    "Income Eligibility 1", "Income Eligibility 2"),
+                    "Income Eligibility 1", "Income Eligibility 2", "Income Eligibility 1 or 2"),
     lep = c("EL", "ELL", "LEP", "English Learner", "English Learners",
             "Limited English Proficient", "English Language Learner"),
     special_ed = c("SPED", "Special Ed", "Special Education",
                    "Students with Disabilities", "SWD", "IEP"),
 
     # Grade levels
-    grade_pk = c("PK", "Pre-K", "PreK", "Preschool", "Pre-Kindergarten"),
+    grade_pk = c("PK", "Pre-K", "PreK", "Preschool", "Pre-Kindergarten", "PS"),
     grade_k = c("K", "KG", "Kindergarten"),
     grade_01 = c("1", "01", "Grade 1", "Grade 01", "1st"),
     grade_02 = c("2", "02", "Grade 2", "Grade 02", "2nd"),
