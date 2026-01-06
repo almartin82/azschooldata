@@ -19,7 +19,8 @@ Imports:
     rlang,
     httr,
     readxl,
-    rappdirs
+    rappdirs,
+    tidyr
 Suggests:
     testthat (>= 3.0.0),
     knitr,

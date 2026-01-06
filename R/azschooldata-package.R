@@ -57,6 +57,7 @@ utils::globalVariables(c(
   "n_students",
   "pct",
   "total_enrollment",
+  "row_total",
   "is_state",
   "is_district",
   "is_campus",
