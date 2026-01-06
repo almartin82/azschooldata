@@ -30,14 +30,14 @@ theme_set(theme_minimal(base_size = 14))
 
 This vignette explores Arizona's public school enrollment data.
 
-> **Note:** Currently available for years 2018, 2019, 2024, and 2025. Years 2020-2023 are not available as Excel downloads.
+> **Note:** Currently available for years 2018, 2024, and 2025. Years 2019-2023 are not available as Excel downloads.
 
 ---
 
 ## Statewide Enrollment Trends
 
 ```{r statewide-trend}
-enr <- fetch_enr_multi(c(2018, 2019, 2024, 2025))
+enr <- fetch_enr_multi(c(2018, 2024, 2025))
 
 state_totals <- enr |>
   filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL") |>
@@ -95,9 +95,9 @@ enr |>
 
 This package uses data from the Arizona Department of Education October 1 enrollment reports.
 
-**Currently available years:** 2018, 2019, 2024, 2025
+**Currently available years:** 2018, 2024, 2025
 
-**Missing years:** 2020-2023 (Excel files not published on ADE website - only available through PDF reports or internal systems)
+**Missing years:** 2019-2023 (Excel files not available as automated downloads - Cloudflare protection blocks programmatic access)
 
 **Data included:**
 - State totals by grade level and gender
