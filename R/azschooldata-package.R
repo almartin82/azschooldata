@@ -50,3 +50,16 @@
 #' @keywords internal
 "_PACKAGE"
 
+# Declare non-standard evaluation variables for dplyr
+utils::globalVariables(c(
+  "subgroup",
+  "grade_level",
+  "n_students",
+  "pct",
+  "total_enrollment",
+  "is_state",
+  "is_district",
+  "is_campus",
+  "type",
+  "end_year"
+))
