@@ -15,6 +15,15 @@ parse_era2_excel(excel_path, end_year)
 List with school and district data frames
 }
 \description{
-Newer ADE enrollment files may have different structure.
+Newer ADE enrollment files have multiple sheets that must be merged:
+\itemize{
+\item School by Grade (grade-level enrollment)
+\item School By Gender (male/female breakdown)
+\item School by Ethnicity (race/ethnicity breakdown)
+\item School by Subgroup (special populations: EL, SPED, FRL)
+\item LEA by Grade (district grade enrollment)
+\item LEA by Gender (district gender breakdown)
+\item LEA by Ethnicity (district race/ethnicity)
+}
 }
 \keyword{internal}
