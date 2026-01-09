@@ -3,6 +3,7 @@
 # ==============================================================================
 
 #' @importFrom rlang .data
+#' @importFrom tidyr pivot_wider
 NULL
 
 
