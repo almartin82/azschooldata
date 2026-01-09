@@ -35,12 +35,15 @@
 <url><loc>https://almartin82.github.io/azschooldata/reference/get_school_year_range.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/id_enr_aggs.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/index.html</loc></url>
+<url><loc>https://almartin82.github.io/azschooldata/reference/merge_safely.html</loc></url>
+<url><loc>https://almartin82.github.io/azschooldata/reference/merge_subgroup_data.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/parse_era1_excel.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/parse_era2_excel.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/process_directory.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/process_district_enr.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/process_enr.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/process_school_enr.html</loc></url>
+<url><loc>https://almartin82.github.io/azschooldata/reference/read_and_merge_sheets.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/read_cache.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/read_cache_directory.html</loc></url>
 <url><loc>https://almartin82.github.io/azschooldata/reference/safe_numeric.html</loc></url>
