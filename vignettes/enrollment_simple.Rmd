@@ -37,7 +37,7 @@ This vignette explores Arizona's public school enrollment data.
 ## Statewide Enrollment Trends
 
 ```{r statewide-trend}
-enr <- fetch_enr_multi(c(2018, 2024, 2025, use_cache = TRUE))
+enr <- fetch_enr_multi(c(2018, 2024, 2025), use_cache = TRUE)
 
 state_totals <- enr |>
   filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL") |>
