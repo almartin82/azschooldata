@@ -11,311 +11,24 @@ Started](https://almartin82.github.io/azschooldata/articles/quickstart.html)**
 
 ## What can you find with azschooldata?
 
-> **See the full analysis with charts and data output:** [15 Insights
-> from Arizona Enrollment
-> Data](https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html)
+> **See the full analysis:** [Arizona School Enrollment
+> Data](https://almartin82.github.io/azschooldata/articles/enrollment_simple.html)
 
-**7 years of enrollment data (2018-2024).** 1.1 million students across
-230+ districts in the Grand Canyon State. Here are fifteen stories
-hiding in the numbers:
+**Enrollment data for 2018 and 2024.** 2.2 million students across 230+
+districts in the Grand Canyon State.
 
 ------------------------------------------------------------------------
 
-### 1. Arizona’s enrollment boom has stalled
+### Gender balance holds steady across Arizona schools
 
-Arizona was one of America’s fastest-growing states, but enrollment
-growth has slowed dramatically. The state peaked around 2019 and has
-been flat since.
+Arizona’s public schools maintain near-equal enrollment between male and
+female students.
 
 ``` r
 library(azschooldata)
 library(dplyr)
 
-enr <- fetch_enr_multi(2011:2025)
-
-enr %>%
-  filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL") %>%
-  select(end_year, n_students) %>%
-  mutate(change = n_students - lag(n_students))
-```
-
-![Arizona enrollment
-trend](https://almartin82.github.io/azschooldata/articles/enrollment_simple_files/figure-html/statewide-chart-1.png)
-
-Arizona enrollment trend
-
-------------------------------------------------------------------------
-
-### 2. Mesa Unified is shrinking while Gilbert grows
-
-Mesa Unified, once Arizona’s largest district, has lost thousands of
-students while neighboring Gilbert Public Schools has surged past
-40,000.
-
-``` r
-enr <- fetch_enr_multi(2015:2025)
-
-enr %>%
-  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL",
-         grepl("Mesa Unified|Gilbert", district_name)) %>%
-  select(end_year, district_name, n_students) %>%
-  tidyr::pivot_wider(names_from = end_year, values_from = n_students)
-```
-
-![Mesa vs
-Gilbert](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/mesa-gilbert-chart-1.png)
-
-Mesa vs Gilbert
-
-------------------------------------------------------------------------
-
-### 3. COVID crushed kindergarten
-
-Arizona kindergarten enrollment dropped over 10% during COVID and hasn’t
-fully recovered, signaling smaller cohorts for years to come.
-
-``` r
-enr <- fetch_enr_multi(2019:2024)
-
-enr %>%
-  filter(is_state, subgroup == "total_enrollment",
-         grade_level %in% c("K", "01", "06", "09")) %>%
-  select(end_year, grade_level, n_students) %>%
-  tidyr::pivot_wider(names_from = grade_level, values_from = n_students)
-```
-
-------------------------------------------------------------------------
-
-### 4. The Hispanic majority arrived
-
-Hispanic students now comprise over 45% of Arizona enrollment, making
-them the largest demographic group in the state’s public schools.
-
-``` r
-enr_2025 <- fetch_enr(2025)
-
-enr_2025 %>%
-  filter(is_state, grade_level == "TOTAL",
-         subgroup %in% c("hispanic", "white", "black", "asian", "native_american", "multiracial")) %>%
-  mutate(pct = round(pct * 100, 1)) %>%
-  select(subgroup, n_students, pct) %>%
-  arrange(desc(n_students))
-```
-
-![Arizona
-demographics](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/demographics-chart-1.png)
-
-Arizona demographics
-
-------------------------------------------------------------------------
-
-### 5. Phoenix Elementary has lost half its students
-
-Phoenix Elementary School District, serving central Phoenix, has
-hemorrhaged enrollment to charters and suburban flight over the past
-decade.
-
-``` r
-enr <- fetch_enr_multi(2011:2025)
-
-enr %>%
-  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL",
-         grepl("Phoenix Elementary", district_name)) %>%
-  select(end_year, district_name, n_students) %>%
-  mutate(pct_of_peak = round(n_students / max(n_students) * 100, 1))
-```
-
-------------------------------------------------------------------------
-
-### 6. Charter schools serve 1 in 5 students
-
-Arizona has the most expansive charter school sector in the nation, with
-over 200,000 students–nearly 20% of all enrollment.
-
-``` r
-enr_2025 %>%
-  filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL") %>%
-  select(n_students)
-
-# Charter total
-enr_2025 %>%
-  filter(is_charter, subgroup == "total_enrollment", grade_level == "TOTAL") %>%
-  summarize(charter_total = sum(n_students, na.rm = TRUE))
-```
-
-------------------------------------------------------------------------
-
-### 7. Native American enrollment is significant
-
-Arizona has one of the nation’s largest Native American student
-populations, with significant enrollment in reservation-based schools
-and districts like Window Rock and Kayenta.
-
-``` r
-enr_2025 %>%
-  filter(is_district, subgroup == "native_american", grade_level == "TOTAL") %>%
-  arrange(desc(n_students)) %>%
-  head(10) %>%
-  select(district_name, n_students, pct)
-```
-
-------------------------------------------------------------------------
-
-### 8. The Southeast Valley is Arizona’s growth engine
-
-Queen Creek, Chandler, and Gilbert districts in the Southeast Valley are
-among the fastest-growing in the state.
-
-``` r
-enr <- fetch_enr_multi(2015:2025)
-
-enr %>%
-  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL",
-         grepl("Queen Creek|Chandler|Gilbert|Higley", district_name)) %>%
-  group_by(district_name) %>%
-  summarize(
-    y2015 = n_students[end_year == 2015],
-    y2025 = n_students[end_year == 2025],
-    pct_change = round((y2025 / y2015 - 1) * 100, 1)
-  ) %>%
-  arrange(desc(pct_change))
-```
-
-------------------------------------------------------------------------
-
-### 9. English learners are 6% of enrollment
-
-Arizona’s English learner population has grown with immigration and
-refugee resettlement, particularly in Phoenix and Tucson.
-
-``` r
-enr_2025 %>%
-  filter(is_state, grade_level == "TOTAL",
-         subgroup %in% c("lep", "total_enrollment")) %>%
-  select(subgroup, n_students, pct)
-```
-
-------------------------------------------------------------------------
-
-### 10. Tucson Unified is Arizona’s second city
-
-Tucson Unified School District, with over 40,000 students, anchors
-Southern Arizona and has demographics quite different from the Phoenix
-metro.
-
-``` r
-enr_2025 %>%
-  filter(is_district, grade_level == "TOTAL",
-         grepl("Tucson Unified", district_name),
-         subgroup %in% c("total_enrollment", "hispanic", "white", "black")) %>%
-  select(district_name, subgroup, n_students, pct)
-```
-
-------------------------------------------------------------------------
-
-### 11. Rural Arizona is disappearing from the school map
-
-While Phoenix metro booms, rural districts across Arizona are shrinking.
-Counties like Greenlee, Santa Cruz, and Graham have seen enrollment drop
-as families move to urban areas.
-
-``` r
-enr <- fetch_enr_multi(2018:2024)
-rural_counties <- c("Greenlee", "Santa Cruz", "Graham", "Gila", "Apache", "Navajo")
-
-enr %>%
-  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL",
-         county %in% c(rural_counties, "Maricopa")) %>%
-  mutate(region = ifelse(county == "Maricopa", "Phoenix Metro", "Rural Counties")) %>%
-  group_by(end_year, region) %>%
-  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop")
-```
-
-![Rural vs
-Metro](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/rural-decline-chart-1.png)
-
-Rural vs Metro
-
-------------------------------------------------------------------------
-
-### 12. The senior-year cliff: fewer students make it to 12th grade
-
-Arizona sees significant enrollment drops between 9th and 12th grade.
-Whether from dropouts, transfers to GED programs, or early graduation,
-fewer students finish the traditional path.
-
-``` r
-enr <- fetch_enr_multi(2018:2025)
-
-enr %>%
-  filter(is_state, subgroup == "total_enrollment",
-         grade_level %in% c("09", "10", "11", "12")) %>%
-  select(end_year, grade_level, n_students) %>%
-  group_by(end_year) %>%
-  mutate(pct_of_9th = n_students / n_students[grade_level == "09"] * 100)
-```
-
-![HS
-Attrition](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/hs-attrition-chart-1.png)
-
-HS Attrition
-
-------------------------------------------------------------------------
-
-### 13. Special education enrollment has grown steadily
-
-Arizona’s special education population has increased both in raw numbers
-and as a percentage of total enrollment, reflecting nationwide trends in
-identification and services.
-
-``` r
-enr <- fetch_enr_multi(2018:2025)
-
-enr %>%
-  filter(is_state, grade_level == "TOTAL",
-         subgroup %in% c("special_ed", "total_enrollment")) %>%
-  select(end_year, subgroup, n_students) %>%
-  tidyr::pivot_wider(names_from = subgroup, values_from = n_students) %>%
-  mutate(sped_pct = special_ed / total_enrollment * 100)
-```
-
-![Special Ed
-Growth](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/sped-growth-chart-1.png)
-
-Special Ed Growth
-
-------------------------------------------------------------------------
-
-### 14. Arizona’s tiny districts: one-school wonders
-
-Arizona has dozens of small districts with fewer than 500 students, many
-serving rural communities, tribal lands, or specialized populations.
-
-``` r
-enr_2024 <- fetch_enr(2024)
-
-enr_2024 %>%
-  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL") %>%
-  select(district_name, county, n_students) %>%
-  arrange(n_students) %>%
-  head(15)
-```
-
-![Tiny
-Districts](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/tiny-districts-chart-1.png)
-
-Tiny Districts
-
-------------------------------------------------------------------------
-
-### 15. Gender balance holds steady across Arizona schools
-
-Unlike some states that see gender imbalances, Arizona’s public schools
-maintain near-equal enrollment between male and female students across
-all levels.
-
-``` r
-enr <- fetch_enr_multi(2018:2025)
+enr <- fetch_enr_multi(c(2018, 2024))
 
 enr %>%
   filter(is_state, grade_level == "TOTAL",
@@ -325,10 +38,11 @@ enr %>%
   mutate(pct_male = male / (male + female) * 100)
 ```
 
-![Gender
-Balance](https://almartin82.github.io/azschooldata/articles/enrollment_hooks_files/figure-html/gender-balance-chart-1.png)
-
-Gender Balance
+    # A tibble: 2 x 3
+      end_year  female    male
+         <dbl>   <dbl>   <dbl>
+    1     2018  541889  570750
+    2     2024 1093826 1136269
 
 ------------------------------------------------------------------------
 
@@ -404,12 +118,13 @@ demographics = enr_2024[
 
 ## Data availability
 
-| Years         | Source                   | Notes                                 |
-|---------------|--------------------------|---------------------------------------|
-| **2018-2024** | ADE October 1 Enrollment | Full demographic and grade-level data |
+| Years          | Source                   | Notes                                 |
+|----------------|--------------------------|---------------------------------------|
+| **2018, 2024** | ADE October 1 Enrollment | Full demographic and grade-level data |
 
 Data is sourced from the Arizona Department of Education October 1
-enrollment reports.
+enrollment reports. Years 2019-2023 are not available as automated
+downloads due to CloudFlare protection.
 
 ### What’s included
 
