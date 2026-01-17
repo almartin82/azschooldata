@@ -12,3 +12,4 @@
 ^pyazschooldata$
 ^tests/__pycache__$
 ^py.*schooldata$
+^vignettes/.*_cache$

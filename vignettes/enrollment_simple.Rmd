@@ -106,3 +106,7 @@ This package uses data from the Arizona Department of Education October 1 enroll
 - County-level aggregates
 
 For more information, see the package README and function documentation.
+
+```{r session-info}
+sessionInfo()
+```
