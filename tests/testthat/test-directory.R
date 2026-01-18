@@ -11,9 +11,12 @@ skip_if_offline <- function() {
 }
 
 # Skip if AZ DOE server is unavailable (often slow/down on GitHub CI)
+# Uses actual API endpoint to test connectivity, not just HEAD request
 skip_if_azed_unavailable <- function() {
   tryCatch({
-    response <- httr::HEAD("https://azreportcards.azed.gov", httr::timeout(10))
+    # Test an actual API call, not just HEAD - servers may respond to HEAD but timeout on GET
+    url <- "https://azreportcards.azed.gov/api/Entity/GetEntityList?fiscalYear=2024"
+    response <- httr::GET(url, httr::timeout(20))
     if (httr::http_error(response)) skip("AZ DOE server unavailable")
   }, error = function(e) skip("AZ DOE server unavailable or too slow"))
 }
