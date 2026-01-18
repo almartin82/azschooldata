@@ -10,6 +10,14 @@ skip_if_offline <- function() {
   }, error = function(e) skip("No network connectivity"))
 }
 
+# Skip if AZ DOE server is unavailable (often slow/down on GitHub CI)
+skip_if_azed_unavailable <- function() {
+  tryCatch({
+    response <- httr::HEAD("https://azreportcards.azed.gov", httr::timeout(10))
+    if (httr::http_error(response)) skip("AZ DOE server unavailable")
+  }, error = function(e) skip("AZ DOE server unavailable or too slow"))
+}
+
 
 # ==============================================================================
 # Live Pipeline Tests - URL Availability
@@ -18,6 +26,7 @@ skip_if_offline <- function() {
 test_that("ADE Report Cards API base URL is accessible", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   response <- httr::HEAD(
     "https://azreportcards.azed.gov",
@@ -32,6 +41,7 @@ test_that("ADE Report Cards API base URL is accessible", {
 test_that("Entity list API endpoint returns data", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   url <- "https://azreportcards.azed.gov/api/Entity/GetEntityList?fiscalYear=2024"
 
@@ -48,6 +58,7 @@ test_that("Entity list API endpoint returns data", {
 test_that("Contact details API endpoint returns data", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   # Test with a known entity ID (4235 = Mesa Unified District)
   url <- "https://azreportcards.azed.gov/api/Entity/GetContactDetails?entityId=4235"
@@ -68,6 +79,7 @@ test_that("Contact details API endpoint returns data", {
 test_that("get_raw_directory downloads entity list", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   # Test with basic download (no contact details for speed)
   raw <- get_raw_directory(2024, include_contact = FALSE)
@@ -83,6 +95,7 @@ test_that("get_raw_directory downloads entity list", {
 test_that("get_raw_directory downloads with contact details", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   # Only download a few entities to test contact fetch
   # We'll modify the function call to limit scope
@@ -106,6 +119,7 @@ test_that("get_raw_directory downloads with contact details", {
 test_that("Entity list has expected columns", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   raw <- get_raw_directory(2024, include_contact = FALSE)
 
@@ -126,6 +140,7 @@ test_that("Entity list has expected columns", {
 test_that("Entity types are LEA or School", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   raw <- get_raw_directory(2024, include_contact = FALSE)
 
@@ -144,6 +159,7 @@ test_that("Entity types are LEA or School", {
 test_that("All entities have non-missing IDs", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   raw <- get_raw_directory(2024, include_contact = FALSE)
 
@@ -155,6 +171,7 @@ test_that("All entities have non-missing IDs", {
 test_that("All schools have associated LEA", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   raw <- get_raw_directory(2024, include_contact = FALSE)
 
@@ -175,6 +192,7 @@ test_that("All schools have associated LEA", {
 test_that("fetch_directory returns valid structure", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   # Test with cache disabled to ensure fresh download
   result <- fetch_directory(end_year = 2024, use_cache = FALSE,
@@ -196,6 +214,7 @@ test_that("fetch_directory returns valid structure", {
 test_that("fetch_directory tidy output has correct state", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   result <- fetch_directory(end_year = 2024, use_cache = FALSE,
                             include_contact = FALSE, tidy = TRUE)
@@ -207,6 +226,7 @@ test_that("fetch_directory tidy output has correct state", {
 test_that("fetch_directory separates schools and LEAs correctly", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   result <- fetch_directory(end_year = 2024, use_cache = FALSE,
                             include_contact = FALSE, tidy = TRUE)
@@ -228,6 +248,7 @@ test_that("fetch_directory separates schools and LEAs correctly", {
 test_that("fetch_directory with contact details includes admin info", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   # This will be slow - only run if explicitly testing
   skip("Slow test - downloads contact details for all entities")
@@ -251,6 +272,7 @@ test_that("fetch_directory with contact details includes admin info", {
 test_that("Mesa Unified District appears in directory", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   result <- fetch_directory(end_year = 2024, use_cache = FALSE,
                             include_contact = FALSE, tidy = TRUE)
@@ -269,6 +291,7 @@ test_that("Mesa Unified District appears in directory", {
 test_that("Entity counts are within expected range", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   result <- fetch_directory(end_year = 2024, use_cache = FALSE,
                             include_contact = FALSE, tidy = TRUE)
@@ -325,6 +348,7 @@ test_that("Directory cache functions work", {
 test_that("fetch_directory uses cache when available", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_azed_unavailable()
 
   # Clear cache and force fresh download
   clear_directory_cache()
