@@ -21,6 +21,13 @@ skip_if_azed_unavailable <- function() {
   }, error = function(e) skip("AZ DOE server unavailable or too slow"))
 }
 
+# Skip on CI environments - AZ DOE API is frequently slow/unreliable from GitHub runners
+skip_on_ci <- function() {
+  if (isTRUE(as.logical(Sys.getenv("CI", "false")))) {
+    skip("Skip on CI - AZ DOE API unreliable from GitHub runners")
+  }
+}
+
 
 # ==============================================================================
 # Live Pipeline Tests - URL Availability
@@ -28,6 +35,7 @@ skip_if_azed_unavailable <- function() {
 
 test_that("ADE Report Cards API base URL is accessible", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -43,6 +51,7 @@ test_that("ADE Report Cards API base URL is accessible", {
 
 test_that("Entity list API endpoint returns data", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -60,6 +69,7 @@ test_that("Entity list API endpoint returns data", {
 
 test_that("Contact details API endpoint returns data", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -81,6 +91,7 @@ test_that("Contact details API endpoint returns data", {
 
 test_that("get_raw_directory downloads entity list", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -97,6 +108,7 @@ test_that("get_raw_directory downloads entity list", {
 
 test_that("get_raw_directory downloads with contact details", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -121,6 +133,7 @@ test_that("get_raw_directory downloads with contact details", {
 
 test_that("Entity list has expected columns", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -142,6 +155,7 @@ test_that("Entity list has expected columns", {
 
 test_that("Entity types are LEA or School", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -161,6 +175,7 @@ test_that("Entity types are LEA or School", {
 
 test_that("All entities have non-missing IDs", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -173,6 +188,7 @@ test_that("All entities have non-missing IDs", {
 
 test_that("All schools have associated LEA", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -194,6 +210,7 @@ test_that("All schools have associated LEA", {
 
 test_that("fetch_directory returns valid structure", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -216,6 +233,7 @@ test_that("fetch_directory returns valid structure", {
 
 test_that("fetch_directory tidy output has correct state", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -228,6 +246,7 @@ test_that("fetch_directory tidy output has correct state", {
 
 test_that("fetch_directory separates schools and LEAs correctly", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -250,6 +269,7 @@ test_that("fetch_directory separates schools and LEAs correctly", {
 
 test_that("fetch_directory with contact details includes admin info", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -274,6 +294,7 @@ test_that("fetch_directory with contact details includes admin info", {
 
 test_that("Mesa Unified District appears in directory", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -293,6 +314,7 @@ test_that("Mesa Unified District appears in directory", {
 
 test_that("Entity counts are within expected range", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
@@ -350,6 +372,7 @@ test_that("Directory cache functions work", {
 
 test_that("fetch_directory uses cache when available", {
   skip_on_cran()
+  skip_on_ci()
   skip_if_offline()
   skip_if_azed_unavailable()
 
