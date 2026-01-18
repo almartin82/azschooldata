@@ -29,80 +29,623 @@ library(ggplot2)
 theme_set(theme_minimal(base_size = 14))
 ```
 
-This vignette explores Arizona's public school enrollment data.
+This vignette explores Arizona's public school enrollment data from the Arizona Department of Education.
 
-> **Note:** Currently available for years 2018, 2024, and 2025. Years 2019-2023 are not available as Excel downloads.
+> **Data available:** 2018 and 2024. Years 2019-2023 are not available as automated Excel downloads due to Cloudflare protection.
 
 ---
 
-## Statewide Enrollment Trends
+## 1. Arizona enrollment flat despite population boom
 
-```{r statewide-trend}
-enr <- fetch_enr_multi(c(2018, 2024, 2025), use_cache = TRUE)
+While Arizona's population grew 8% from 2018-2024, public school enrollment stayed nearly flat - adding just 2,400 students (0.2% growth). This suggests more families are choosing private schools, homeschooling, or moving to Arizona without school-age children.
 
-state_totals <- enr |>
-  filter(is_state, subgroup == "total_enrollment", grade_level == "TOTAL") |>
-  select(end_year, n_students) |>
-  mutate(change = n_students - lag(n_students),
-         pct_change = round(change / lag(n_students) * 100, 2))
+```{r state-enrollment}
+enr <- fetch_enr_multi(c(2018, 2024), use_cache = TRUE)
 
-state_totals
+enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL") |>
+  group_by(end_year) |>
+  summarize(total_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  mutate(change = total_students - lag(total_students),
+         pct_change = round(change / lag(total_students) * 100, 1))
 ```
 
-```{r statewide-chart}
-ggplot(state_totals, aes(x = end_year, y = n_students)) +
-  geom_line(linewidth = 1.2, color = "#BF0A30") +
-  geom_point(size = 3, color = "#BF0A30") +
-  scale_y_continuous(labels = scales::comma) +
+```{r state-enrollment-chart}
+enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL") |>
+  group_by(end_year) |>
+  summarize(total_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = factor(end_year), y = total_students)) +
+  geom_col(fill = "#BF0A30", width = 0.6) +
+  geom_text(aes(label = scales::comma(total_students)), vjust = -0.5, size = 4) +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 1300000)) +
   labs(
-    title = "Arizona Public School Enrollment (2018-2024)",
-    subtitle = "Growth has slowed in recent years",
+    title = "Arizona Public School Enrollment",
+    subtitle = "Essentially flat from 2018 to 2024 despite population growth",
     x = "School Year (ending)",
-    y = "Total Enrollment"
+    y = "Total Students"
   )
 ```
 
-## Gender Distribution
+---
 
-```{r gender-by-year}
-gender_by_year <- enr |>
-  filter(is_state, grade_level == "TOTAL",
-         subgroup %in% c("male", "female")) |>
-  select(end_year, subgroup, n_students) |>
-  pivot_wider(names_from = subgroup, values_from = n_students)
+## 2. Hispanic students now 48% of Arizona schools
 
-gender_by_year
+Hispanic students grew from 45.7% to 48.2% of enrollment between 2018 and 2024, while White students declined from 38% to 33.8%. Arizona's schools are becoming increasingly diverse.
+
+```{r demographics-change}
+demographics <- enr |>
+  filter(is_district, district_name != "Arizona", grade_level == "TOTAL",
+         subgroup %in% c("hispanic", "white", "black", "asian",
+                         "native_american", "multiracial", "total_enrollment")) |>
+  group_by(end_year, subgroup) |>
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  group_by(end_year) |>
+  mutate(pct = round(n_students / n_students[subgroup == "total_enrollment"] * 100, 1)) |>
+  filter(subgroup != "total_enrollment")
+
+demographics |>
+  select(end_year, subgroup, n_students, pct) |>
+  arrange(end_year, desc(n_students))
+```
+
+```{r demographics-chart}
+demographics |>
+  filter(end_year == 2024) |>
+  mutate(subgroup = factor(subgroup, levels = c("hispanic", "white", "black",
+                                                 "native_american", "asian", "multiracial"))) |>
+  ggplot(aes(x = reorder(subgroup, -n_students), y = n_students, fill = subgroup)) +
+  geom_col() +
+  scale_fill_brewer(palette = "Set2") +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Arizona School Enrollment by Race/Ethnicity (2024)",
+    subtitle = "Hispanic students are the largest group at 48%",
+    x = NULL,
+    y = "Number of Students"
+  ) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+---
+
+## 3. Queen Creek doubled in size while Mesa lost 5,400 students
+
+Queen Creek Unified grew 104% (from 7,095 to 14,474 students) as new subdivisions opened in the southeast Valley. Meanwhile, Mesa Unified - the state's largest district - lost 5,445 students (-8.7%).
+
+```{r district-growth}
+growth <- enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL") |>
+  group_by(end_year, district_name) |>
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = end_year, values_from = n_students,
+              names_prefix = "y") |>
+  filter(!is.na(y2018), !is.na(y2024), y2018 >= 1000) |>
+  mutate(change = y2024 - y2018,
+         pct_change = round((y2024 / y2018 - 1) * 100, 1)) |>
+  arrange(desc(change))
+
+growth |>
+  select(district_name, y2018, y2024, change, pct_change) |>
+  head(10)
+```
+
+```{r growth-chart}
+growth |>
+  head(10) |>
+  mutate(district_name = gsub(" District.*$| Unified.*$", "", district_name)) |>
+  ggplot(aes(x = reorder(district_name, change), y = change, fill = change > 0)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = c("TRUE" = "#2E8B57", "FALSE" = "#CD5C5C")) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Top 10 Fastest Growing Districts (2018-2024)",
+    subtitle = "Queen Creek added 7,379 students (+104%)",
+    x = NULL,
+    y = "Change in Enrollment"
+  ) +
+  theme(legend.position = "none")
+```
+
+---
+
+## 4. Mesa, Tucson, and Paradise Valley lead enrollment losses
+
+The three largest enrollment declines in Arizona are all in established urban districts: Mesa (-5,445), Tucson (-4,940), and Paradise Valley (-4,185). These districts face competition from charters and demographic shifts.
+
+```{r district-decline}
+growth |>
+  arrange(change) |>
+  select(district_name, y2018, y2024, change, pct_change) |>
+  head(10)
+```
+
+```{r decline-chart}
+growth |>
+  arrange(change) |>
+  head(10) |>
+  mutate(district_name = gsub(" District.*$| Unified.*$", "", district_name)) |>
+  ggplot(aes(x = reorder(district_name, -change), y = -change, fill = factor(1))) +
+  geom_col(fill = "#CD5C5C") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Top 10 Largest Enrollment Declines (2018-2024)",
+    subtitle = "Mesa lost 5,445 students (-8.7%)",
+    x = NULL,
+    y = "Students Lost"
+  ) +
+  theme(legend.position = "none")
+```
+
+---
+
+## 5. Arizona has 34% more seniors than kindergartners
+
+There are 96,316 12th graders but only 71,728 kindergartners - a 34% difference. This "inverted pyramid" could signal declining birth rates or families with young children leaving public schools.
+
+```{r grade-distribution}
+grade_order <- c("PK", "K", "01", "02", "03", "04", "05",
+                 "06", "07", "08", "09", "10", "11", "12")
+
+grades <- enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level %in% grade_order,
+         end_year == 2024) |>
+  group_by(grade_level) |>
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  mutate(grade_level = factor(grade_level, levels = grade_order))
+
+grades |>
+  arrange(grade_level)
+```
+
+```{r grade-chart}
+grades |>
+  ggplot(aes(x = grade_level, y = n_students)) +
+  geom_col(fill = "#4682B4") +
+  geom_hline(yintercept = grades$n_students[grades$grade_level == "K"],
+             linetype = "dashed", color = "red", linewidth = 1) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Enrollment by Grade Level (2024)",
+    subtitle = "12th grade has 34% more students than kindergarten (dashed line)",
+    x = "Grade Level",
+    y = "Number of Students"
+  )
+```
+
+---
+
+## 6. Top 27 districts educate half of Arizona's students
+
+Student enrollment is heavily concentrated: just 27 of Arizona's 638 districts educate 50% of all students. The top 10 districts alone serve 30% of students.
+
+```{r district-concentration}
+concentration <- enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL",
+         end_year == 2024) |>
+  arrange(desc(n_students)) |>
+  mutate(
+    cum_students = cumsum(n_students),
+    cum_pct = round(cum_students / sum(n_students) * 100, 1),
+    rank = row_number()
+  )
+
+total_students <- sum(concentration$n_students)
+n_districts <- nrow(concentration)
+
+concentration |>
+  select(rank, district_name, n_students, cum_pct) |>
+  head(15)
+```
+
+```{r concentration-chart}
+concentration |>
+  filter(rank <= 30) |>
+  ggplot(aes(x = rank, y = cum_pct)) +
+  geom_line(color = "#BF0A30", linewidth = 1.2) +
+  geom_point(color = "#BF0A30", size = 2) +
+  geom_hline(yintercept = 50, linetype = "dashed", color = "gray40") +
+  geom_vline(xintercept = 27, linetype = "dashed", color = "gray40") +
+  annotate("text", x = 27, y = 55, label = "27 districts = 50%", hjust = -0.1) +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "Cumulative Student Enrollment by District Rank",
+    subtitle = "Half of all students are in just 27 of 638 districts",
+    x = "District Rank (by enrollment)",
+    y = "Cumulative % of Students"
+  )
+```
+
+---
+
+## 7. Charters serve nearly 1 in 4 Arizona students
+
+Charter schools and other non-traditional districts now serve 24% of Arizona's students (270,000 students across 443 districts). Traditional districts (unified, union, elementary) serve the remaining 76%.
+
+```{r charter-analysis}
+charter_data <- enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL",
+         end_year == 2024) |>
+  mutate(district_type = case_when(
+    grepl("Unified|Union|Elementary District|High School District", district_name) ~ "Traditional",
+    TRUE ~ "Charter/Other"
+  )) |>
+  group_by(district_type) |>
+  summarize(
+    n_districts = n(),
+    total_students = sum(n_students, na.rm = TRUE),
+    avg_size = round(mean(n_students), 0),
+    .groups = "drop"
+  ) |>
+  mutate(pct = round(total_students / sum(total_students) * 100, 1))
+
+charter_data
+```
+
+```{r charter-chart}
+charter_data |>
+  ggplot(aes(x = district_type, y = total_students, fill = district_type)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = paste0(scales::comma(total_students), "\n(", pct, "%)")),
+            vjust = -0.3, size = 4) +
+  scale_fill_manual(values = c("Charter/Other" = "#FF8C00", "Traditional" = "#4682B4")) +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 1000000)) +
+  labs(
+    title = "Enrollment by District Type (2024)",
+    subtitle = "Charters serve nearly 1 in 4 Arizona students",
+    x = NULL,
+    y = "Total Students"
+  ) +
+  theme(legend.position = "none")
+```
+
+---
+
+## 8. San Carlos is 99% Native American
+
+Arizona has several districts with almost entirely Native American enrollment, reflecting the state's 22 federally recognized tribes. San Carlos Unified is 99.1% Native American, followed by Chinle (98.9%) and Window Rock (98.4%).
+
+```{r native-american}
+native_am <- enr |>
+  filter(is_district, district_name != "Arizona", grade_level == "TOTAL",
+         subgroup %in% c("native_american", "total_enrollment"),
+         end_year == 2024) |>
+  group_by(district_name, subgroup) |>
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = subgroup, values_from = n_students) |>
+  filter(!is.na(native_american), total_enrollment >= 100) |>
+  mutate(pct_native = round(native_american / total_enrollment * 100, 1)) |>
+  arrange(desc(pct_native))
+
+native_am |>
+  select(district_name, total_enrollment, native_american, pct_native) |>
+  head(10)
+```
+
+```{r native-chart}
+native_am |>
+  head(10) |>
+  mutate(district_name = gsub(" District.*$| Unified.*$", "", district_name)) |>
+  ggplot(aes(x = reorder(district_name, pct_native), y = pct_native)) +
+  geom_col(fill = "#8B4513") +
+  geom_text(aes(label = paste0(pct_native, "%")), hjust = -0.1, size = 3.5) +
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 110)) +
+  labs(
+    title = "Districts with Highest Native American Enrollment",
+    subtitle = "San Carlos is 99.1% Native American",
+    x = NULL,
+    y = "% Native American"
+  )
+```
+
+---
+
+## 9. Border districts are over 95% Hispanic
+
+Arizona's border districts have near-complete Hispanic enrollment. Gadsden Elementary (99.5%), Nogales Unified (99.4%), and Douglas Unified (97.6%) serve predominantly Hispanic communities near the Mexico border.
+
+```{r hispanic-districts}
+hispanic_maj <- enr |>
+  filter(is_district, district_name != "Arizona", grade_level == "TOTAL",
+         subgroup %in% c("hispanic", "total_enrollment"),
+         end_year == 2024) |>
+  group_by(district_name, subgroup) |>
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = subgroup, values_from = n_students) |>
+  filter(!is.na(hispanic), total_enrollment >= 500) |>
+  mutate(pct_hispanic = round(hispanic / total_enrollment * 100, 1)) |>
+  arrange(desc(pct_hispanic))
+
+hispanic_maj |>
+  select(district_name, total_enrollment, hispanic, pct_hispanic) |>
+  head(10)
+```
+
+```{r hispanic-chart}
+hispanic_maj |>
+  head(10) |>
+  mutate(district_name = gsub(" District.*$|, Inc\\.$", "", district_name)) |>
+  ggplot(aes(x = reorder(district_name, pct_hispanic), y = pct_hispanic)) +
+  geom_col(fill = "#FF6B35") +
+  geom_text(aes(label = paste0(pct_hispanic, "%")), hjust = -0.1, size = 3.5) +
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 110)) +
+  labs(
+    title = "Districts with Highest Hispanic Enrollment",
+    subtitle = "Border districts are over 95% Hispanic",
+    x = NULL,
+    y = "% Hispanic"
+  )
+```
+
+---
+
+## 10. Mesa Unified is still Arizona's largest district
+
+Despite losing 5,445 students, Mesa Unified remains Arizona's largest district with 57,311 students. Chandler (42,515), Tucson (40,534), and Peoria (35,490) round out the top four.
+
+```{r largest-districts}
+enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL",
+         end_year == 2024) |>
+  select(district_name, n_students) |>
+  arrange(desc(n_students)) |>
+  head(15)
+```
+
+```{r largest-chart}
+enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL",
+         end_year == 2024) |>
+  arrange(desc(n_students)) |>
+  head(10) |>
+  mutate(district_name = gsub(" District.*$| Unified.*$", "", district_name)) |>
+  ggplot(aes(x = reorder(district_name, n_students), y = n_students)) +
+  geom_col(fill = "#4682B4") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "10 Largest Districts in Arizona (2024)",
+    subtitle = "Mesa remains #1 with 57,311 students",
+    x = NULL,
+    y = "Number of Students"
+  )
+```
+
+---
+
+## 11. Arizona has 638 districts serving 1.1 million students
+
+Arizona's school system includes 638 separate districts - from Mesa's 57,000 students down to tiny rural districts with just 11 students. The average district has 1,748 students, but the median is just 269.
+
+```{r district-size}
+district_stats <- enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL",
+         end_year == 2024) |>
+  summarize(
+    n_districts = n(),
+    total_students = sum(n_students),
+    mean_size = round(mean(n_students), 0),
+    median_size = median(n_students),
+    min_size = min(n_students),
+    max_size = max(n_students)
+  )
+
+district_stats
+```
+
+```{r size-distribution-chart}
+enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level == "TOTAL",
+         end_year == 2024) |>
+  mutate(size_bucket = cut(n_students,
+                           breaks = c(0, 100, 500, 1000, 5000, 10000, 50000, Inf),
+                           labels = c("<100", "100-499", "500-999", "1K-5K",
+                                      "5K-10K", "10K-50K", ">50K"))) |>
+  count(size_bucket) |>
+  ggplot(aes(x = size_bucket, y = n)) +
+  geom_col(fill = "#6B8E23") +
+  geom_text(aes(label = n), vjust = -0.5) +
+  labs(
+    title = "Distribution of District Sizes",
+    subtitle = "Most districts are small; a few giants dominate enrollment",
+    x = "District Size (students)",
+    y = "Number of Districts"
+  )
+```
+
+---
+
+## 12. Boys outnumber girls 51% to 49%
+
+Male students slightly outnumber female students in Arizona schools: 568,081 boys (51%) vs 546,854 girls (49%). This 2-point gap is consistent with national patterns.
+
+```{r gender}
+gender <- enr |>
+  filter(is_district, district_name != "Arizona", grade_level == "TOTAL",
+         subgroup %in% c("male", "female"),
+         end_year == 2024) |>
+  group_by(subgroup) |>
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  mutate(pct = round(n_students / sum(n_students) * 100, 1))
+
+gender
 ```
 
 ```{r gender-chart}
-enr |>
-  filter(is_state, grade_level == "TOTAL",
-         subgroup %in% c("male", "female")) |>
-  mutate(pct = n_students / n_students[subgroup == "total_enrollment"][1] * 100,
-         subgroup = ifelse(subgroup == "male", "Male", "Female")) |>
-  ggplot(aes(x = end_year, y = pct, fill = subgroup)) +
-  geom_col(position = "dodge") +
-  scale_fill_manual(values = c("Male" = "#0072B2", "Female" = "#CC79A7")) +
-  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+gender |>
+  ggplot(aes(x = subgroup, y = n_students, fill = subgroup)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = paste0(scales::comma(n_students), "\n(", pct, "%)")),
+            vjust = -0.3, size = 4) +
+  scale_fill_manual(values = c("female" = "#CC79A7", "male" = "#0072B2")) +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 650000)) +
   labs(
-    title = "Gender Distribution Over Time",
+    title = "Enrollment by Gender (2024)",
+    subtitle = "Boys outnumber girls 51% to 49%",
+    x = NULL,
+    y = "Number of Students"
+  ) +
+  theme(legend.position = "none")
+```
+
+---
+
+## 13. Virtual schools serve 7,000+ students
+
+American Virtual Academy is Arizona's largest virtual school with 7,147 students in 2024. This represents 69% growth from 4,227 students in 2018, reflecting the post-pandemic persistence of online learning.
+
+```{r virtual-schools}
+enr |>
+  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL",
+         grepl("Virtual|Online|Digital", district_name, ignore.case = TRUE)) |>
+  select(end_year, district_name, n_students) |>
+  arrange(end_year, desc(n_students))
+```
+
+```{r virtual-chart}
+virtual <- enr |>
+  filter(is_district, subgroup == "total_enrollment", grade_level == "TOTAL",
+         district_name == "American Virtual Academy")
+
+virtual |>
+  ggplot(aes(x = factor(end_year), y = n_students)) +
+  geom_col(fill = "#9370DB", width = 0.6) +
+  geom_text(aes(label = scales::comma(n_students)), vjust = -0.5, size = 4) +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 8000)) +
+  labs(
+    title = "American Virtual Academy Enrollment",
+    subtitle = "Grew 69% from 2018 to 2024",
     x = "School Year",
-    y = "Percentage",
-    fill = "Gender"
+    y = "Number of Students"
   )
 ```
 
-## Data Availability
+---
 
-This package uses data from the Arizona Department of Education October 1 enrollment reports.
+## 14. Elementary grades are shrinking faster than high school
 
-**Currently available years:** 2018, 2024, 2025
+Elementary enrollment (K-5) totals 476,257 students while high school (9-12) has 366,922. But when you look at individual grades, high school grades average 91,730 students while elementary grades average only 79,376 - a 15% difference suggesting demographic shift.
 
-**Missing years:** 2019-2023 (Excel files not available as automated downloads - Cloudflare protection blocks programmatic access)
+```{r elem-vs-hs}
+grade_groups <- enr |>
+  filter(is_district, district_name != "Arizona",
+         subgroup == "total_enrollment", grade_level %in% grade_order,
+         end_year == 2024) |>
+  group_by(grade_level) |>
+  summarize(n_students = sum(n_students, na.rm = TRUE), .groups = "drop") |>
+  mutate(level = case_when(
+    grade_level %in% c("K", "01", "02", "03", "04", "05") ~ "Elementary (K-5)",
+    grade_level %in% c("06", "07", "08") ~ "Middle (6-8)",
+    grade_level %in% c("09", "10", "11", "12") ~ "High School (9-12)",
+    TRUE ~ "Other"
+  )) |>
+  group_by(level) |>
+  summarize(
+    total_students = sum(n_students),
+    n_grades = n(),
+    avg_per_grade = round(sum(n_students) / n()),
+    .groups = "drop"
+  )
 
-**Data included:**
-- State totals by grade level and gender
-- District and school totals
-- County-level aggregates
+grade_groups
+```
 
-For more information, see the package README and function documentation.
+```{r level-chart}
+grade_groups |>
+  filter(level != "Other") |>
+  ggplot(aes(x = level, y = avg_per_grade, fill = level)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = scales::comma(avg_per_grade)), vjust = -0.5, size = 4) +
+  scale_fill_brewer(palette = "Set1") +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 100000)) +
+  labs(
+    title = "Average Enrollment Per Grade by School Level",
+    subtitle = "High school grades average 15% more students than elementary",
+    x = NULL,
+    y = "Average Students Per Grade"
+  ) +
+  theme(legend.position = "none")
+```
+
+---
+
+## 15. 111 districts are Hispanic-majority
+
+Of Arizona's 638 districts, 111 have majority Hispanic enrollment (at least 500 students and >50% Hispanic). These districts serve 416,120 students total - about 37% of all students statewide.
+
+```{r hispanic-majority}
+hispanic_count <- hispanic_maj |>
+  filter(pct_hispanic >= 50) |>
+  summarize(
+    n_districts = n(),
+    total_students = sum(total_enrollment),
+    pct_of_state = round(sum(total_enrollment) / sum(concentration$n_students) * 100, 1)
+  )
+
+hispanic_count
+```
+
+```{r hispanic-majority-chart}
+hispanic_maj |>
+  mutate(majority = ifelse(pct_hispanic >= 50, "Hispanic Majority", "Not Hispanic Majority")) |>
+  group_by(majority) |>
+  summarize(n_districts = n(), total_students = sum(total_enrollment), .groups = "drop") |>
+  ggplot(aes(x = majority, y = n_districts, fill = majority)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = paste0(n_districts, " districts\n",
+                               scales::comma(total_students), " students")),
+            vjust = -0.3, size = 3.5) +
+  scale_fill_manual(values = c("Hispanic Majority" = "#FF6B35",
+                               "Not Hispanic Majority" = "#4682B4")) +
+  scale_y_continuous(limits = c(0, 400)) +
+  labs(
+    title = "Hispanic-Majority Districts in Arizona",
+    subtitle = "111 districts (17%) are majority Hispanic",
+    x = NULL,
+    y = "Number of Districts"
+  ) +
+  theme(legend.position = "none")
+```
+
+---
+
+## Data Notes
+
+**Source:** Arizona Department of Education October 1 Enrollment Reports
+**URL:** https://www.azed.gov/accountability-research
+**Available years:** 2018, 2024
+**Missing years:** 2019-2023 (Cloudflare protection blocks automated downloads)
+
+**Important caveats:**
+- Small counts may be suppressed in the source data
+- The ADE data includes a row named "Arizona" that appears to double-count state totals; analyses above exclude this row
+- Virtual and charter schools are counted separately from traditional districts
+
+**What's included:**
+- State, district, and school level enrollment
+- Demographics: Hispanic, White, Black, Asian, Native American, Pacific Islander, Multiracial
+- Gender: Male, Female
+- Grade levels: PK through 12
+
+---
+
+## Session Info
+
+```{r session-info}
+sessionInfo()
+```
