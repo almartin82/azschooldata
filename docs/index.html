@@ -38,6 +38,7 @@
 <li><a class="dropdown-item" href="articles/enrollment_simple.html">Arizona School Enrollment Data</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -57,53 +58,212 @@
 <!-- badges: start -->
 
 <p>Fetch and analyze Arizona school enrollment data from the Arizona Department of Education (ADE) in R or Python.</p>
-<p><strong><a href="https://almartin82.github.io/azschooldata/">Documentation</a></strong> | <strong><a href="https://almartin82.github.io/azschooldata/articles/enrollment_hooks.html">15 Key Insights</a></strong> | <strong><a href="https://almartin82.github.io/azschooldata/articles/quickstart.html">Getting Started</a></strong></p>
+<p><strong>Part of the <a href="https://github.com/almartin82/njschooldata" class="external-link">njschooldata</a> family</strong> - providing consistent access to state education data across all 50 states.</p>
+<p><strong><a href="https://almartin82.github.io/azschooldata/">Full Documentation</a></strong> | <strong><a href="https://almartin82.github.io/azschooldata/articles/enrollment_simple.html">Vignette with 15 Stories</a></strong></p>
 <div class="section level2">
-<h2 id="what-can-you-find-with-azschooldata">What can you find with azschooldata?<a class="anchor" aria-label="anchor" href="#what-can-you-find-with-azschooldata"></a>
+<h2 id="whats-in-arizonas-school-data">What’s in Arizona’s school data?<a class="anchor" aria-label="anchor" href="#whats-in-arizonas-school-data"></a>
 </h2>
-<blockquote>
-<p><strong>See the full analysis:</strong> <a href="https://almartin82.github.io/azschooldata/articles/enrollment_simple.html">Arizona School Enrollment Data</a></p>
-</blockquote>
-<p><strong>Enrollment data for 2018 and 2024.</strong> 2.2 million students across 230+ districts in the Grand Canyon State.</p>
+<p><strong>1.1 million students</strong> across 638 districts in the Grand Canyon State. Data available for 2018 and 2024 (2019-2023 unavailable due to Cloudflare protection on ADE’s website).</p>
 <hr>
 <div class="section level3">
-<h3 id="gender-balance-holds-steady-across-arizona-schools">Gender balance holds steady across Arizona schools<a class="anchor" aria-label="anchor" href="#gender-balance-holds-steady-across-arizona-schools"></a>
+<h3 id="id_1-arizona-enrollment-flat-despite-population-boom">1. Arizona enrollment flat despite population boom<a class="anchor" aria-label="anchor" href="#id_1-arizona-enrollment-flat-despite-population-boom"></a>
 </h3>
-<p>Arizona’s public schools maintain near-equal enrollment between male and female students.</p>
+<p>While Arizona’s population grew 8% from 2018-2024, public school enrollment stayed nearly flat - adding just 2,400 students (0.2% growth). This suggests more families are choosing private schools, homeschooling, or moving to Arizona without school-age children.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://almartin82.github.io/azschooldata/">azschooldata</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">enr</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_enr_multi.html">fetch_enr_multi</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2018</span>, <span class="fl">2024</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">enr</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_enr_multi.html">fetch_enr_multi</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2018</span>, <span class="fl">2024</span><span class="op">)</span>, use_cache <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">enr</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_state</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span>,</span>
-<span>         <span class="va">subgroup</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"male"</span>, <span class="st">"female"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">end_year</span>, <span class="va">subgroup</span>, <span class="va">n_students</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">subgroup</span>, values_from <span class="op">=</span> <span class="va">n_students</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>pct_male <span class="op">=</span> <span class="va">male</span> <span class="op">/</span> <span class="op">(</span><span class="va">male</span> <span class="op">+</span> <span class="va">female</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
-<pre><code># A tibble: 2 x 3
-  end_year  female    male
-     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-1     2018  541889  570750
-2     2024 1093826 1136269</code></pre>
+<span><span class="va">enr</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_district</span>, <span class="va">district_name</span> <span class="op">!=</span> <span class="st">"Arizona"</span>,</span>
+<span>         <span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">end_year</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>total_students <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">n_students</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>change <span class="op">=</span> <span class="va">total_students</span> <span class="op">-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lag</a></span><span class="op">(</span><span class="va">total_students</span><span class="op">)</span>,</span>
+<span>         pct_change <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">change</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lag</a></span><span class="op">(</span><span class="va">total_students</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code># A tibble: 2 x 4
+  end_year total_students change pct_change
+     &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;
+1     2018        1112682     NA       NA
+2     2024        1115111   2429        0.2</code></pre>
+<div class="float">
+<img src="https://almartin82.github.io/azschooldata/articles/enrollment_simple_files/figure-html/state-enrollment-chart-1.png" alt="State enrollment chart"><div class="figcaption">State enrollment chart</div>
+</div>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="id_2-hispanic-students-now-48-of-arizona-schools">2. Hispanic students now 48% of Arizona schools<a class="anchor" aria-label="anchor" href="#id_2-hispanic-students-now-48-of-arizona-schools"></a>
+</h3>
+<p>Hispanic students grew from 45.7% to 48.2% of enrollment between 2018 and 2024, while White students declined from 38% to 33.8%. Arizona’s schools are becoming increasingly diverse.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">demographics</span> <span class="op">&lt;-</span> <span class="va">enr</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_district</span>, <span class="va">district_name</span> <span class="op">!=</span> <span class="st">"Arizona"</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span>,</span>
+<span>         <span class="va">subgroup</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hispanic"</span>, <span class="st">"white"</span>, <span class="st">"black"</span>, <span class="st">"asian"</span>,</span>
+<span>                         <span class="st">"native_american"</span>, <span class="st">"multiracial"</span>, <span class="st">"total_enrollment"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">end_year</span>, <span class="va">subgroup</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>n_students <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">n_students</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">end_year</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>pct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">n_students</span> <span class="op">/</span> <span class="va">n_students</span><span class="op">[</span><span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span><span class="op">]</span> <span class="op">*</span> <span class="fl">100</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">subgroup</span> <span class="op">!=</span> <span class="st">"total_enrollment"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">demographics</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">end_year</span>, <span class="va">subgroup</span>, <span class="va">n_students</span>, <span class="va">pct</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">end_year</span>, <span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">n_students</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code># A tibble: 10 x 4
+   end_year subgroup        n_students   pct
+      &lt;dbl&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt;
+ 1     2018 hispanic            508121  45.7
+ 2     2018 white               422414  38
+ 3     2018 black                58875   5.3
+ 4     2018 asian                31283   2.8
+ 5     2024 hispanic            536955  48.2
+ 6     2024 white               376562  33.8
+ 7     2024 black                63367   5.7
+ 8     2024 multiracial          46487   4.2
+ 9     2024 native_american      44791   4
+10     2024 asian                34126   3.1</code></pre>
+<div class="float">
+<img src="https://almartin82.github.io/azschooldata/articles/enrollment_simple_files/figure-html/demographics-chart-1.png" alt="Demographics chart"><div class="figcaption">Demographics chart</div>
+</div>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="id_3-queen-creek-doubled-in-size-while-mesa-lost-5400-students">3. Queen Creek doubled in size while Mesa lost 5,400 students<a class="anchor" aria-label="anchor" href="#id_3-queen-creek-doubled-in-size-while-mesa-lost-5400-students"></a>
+</h3>
+<p>Queen Creek Unified grew 104% (from 7,095 to 14,474 students) as new subdivisions opened in the southeast Valley. Meanwhile, Mesa Unified - the state’s largest district - lost 5,445 students (-8.7%).</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">growth</span> <span class="op">&lt;-</span> <span class="va">enr</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_district</span>, <span class="va">district_name</span> <span class="op">!=</span> <span class="st">"Arizona"</span>,</span>
+<span>         <span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">end_year</span>, <span class="va">district_name</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>n_students <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">n_students</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">pivot_wider</span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">end_year</span>, values_from <span class="op">=</span> <span class="va">n_students</span>,</span>
+<span>              names_prefix <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">y2018</span><span class="op">)</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">y2024</span><span class="op">)</span>, <span class="va">y2018</span> <span class="op">&gt;=</span> <span class="fl">1000</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>change <span class="op">=</span> <span class="va">y2024</span> <span class="op">-</span> <span class="va">y2018</span>,</span>
+<span>         pct_change <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="op">(</span><span class="va">y2024</span> <span class="op">/</span> <span class="va">y2018</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">change</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">growth</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">district_name</span>, <span class="va">y2018</span>, <span class="va">y2024</span>, <span class="va">change</span>, <span class="va">pct_change</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+<pre><code># A tibble: 10 x 5
+   district_name                         y2018 y2024 change pct_change
+   &lt;chr&gt;                                 &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;
+ 1 Queen Creek Unified District           7095 14474   7379      104
+ 2 American Leadership Academy, Inc.      7904 13787   5883       74.4
+ 3 American Virtual Academy               4227  7147   2920       69.1
+ 4 Leman Academy of Excellence, Inc.      2042  4777   2735      134
+ 5 Tolleson Union High School District   11152 13785   2633       23.6
+ 6 Maricopa Unified School District       6661  9262   2601       39
+ 7 Agua Fria Union High School District   7766  9974   2208       28.4
+ 8 Saddle Mountain Unified School Dist    1630  3245   1615       99.1
+ 9 Buckeye Union High School District     4014  5520   1506       37.5
+10 Glendale Union High School District   14997 16318   1321        8.8</code></pre>
+<div class="float">
+<img src="https://almartin82.github.io/azschooldata/articles/enrollment_simple_files/figure-html/growth-chart-1.png" alt="Growth chart"><div class="figcaption">Growth chart</div>
+</div>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="id_4-arizona-has-34-more-seniors-than-kindergartners">4. Arizona has 34% more seniors than kindergartners<a class="anchor" aria-label="anchor" href="#id_4-arizona-has-34-more-seniors-than-kindergartners"></a>
+</h3>
+<p>There are 96,316 12th graders but only 71,728 kindergartners - a 34% difference. This “inverted pyramid” could signal declining birth rates or families with young children leaving public schools.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grade_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PK"</span>, <span class="st">"K"</span>, <span class="st">"01"</span>, <span class="st">"02"</span>, <span class="st">"03"</span>, <span class="st">"04"</span>, <span class="st">"05"</span>,</span>
+<span>                 <span class="st">"06"</span>, <span class="st">"07"</span>, <span class="st">"08"</span>, <span class="st">"09"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>, <span class="st">"12"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">grades</span> <span class="op">&lt;-</span> <span class="va">enr</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_district</span>, <span class="va">district_name</span> <span class="op">!=</span> <span class="st">"Arizona"</span>,</span>
+<span>         <span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span>, <span class="va">grade_level</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">grade_order</span>,</span>
+<span>         <span class="va">end_year</span> <span class="op">==</span> <span class="fl">2024</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">grade_level</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>n_students <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">n_students</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>grade_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">grade_level</span>, levels <span class="op">=</span> <span class="va">grade_order</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">grades</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">grade_level</span><span class="op">)</span></span></code></pre></div>
+<pre><code># A tibble: 14 x 2
+   grade_level n_students
+   &lt;fct&gt;            &lt;dbl&gt;
+ 1 PK               20326
+ 2 K                71728
+ 3 01               77610
+ 4 02               81369
+ 5 03               79268
+ 6 04               81776
+ 7 05               81887
+ 8 06               81836
+ 9 07               83291
+10 08               84367
+11 09               89135
+12 10               91940
+13 11               89531
+14 12               96316</code></pre>
+<div class="float">
+<img src="https://almartin82.github.io/azschooldata/articles/enrollment_simple_files/figure-html/grade-chart-1.png" alt="Grade distribution chart"><div class="figcaption">Grade distribution chart</div>
+</div>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="id_5-charters-serve-nearly-1-in-4-arizona-students">5. Charters serve nearly 1 in 4 Arizona students<a class="anchor" aria-label="anchor" href="#id_5-charters-serve-nearly-1-in-4-arizona-students"></a>
+</h3>
+<p>Charter schools and other non-traditional districts now serve 24% of Arizona’s students (270,000 students across 443 districts). Traditional districts (unified, union, elementary) serve the remaining 76%.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">charter_data</span> <span class="op">&lt;-</span> <span class="va">enr</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_district</span>, <span class="va">district_name</span> <span class="op">!=</span> <span class="st">"Arizona"</span>,</span>
+<span>         <span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span>,</span>
+<span>         <span class="va">end_year</span> <span class="op">==</span> <span class="fl">2024</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>district_type <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Unified|Union|Elementary District|High School District"</span>, <span class="va">district_name</span><span class="op">)</span> <span class="op">~</span> <span class="st">"Traditional"</span>,</span>
+<span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="st">"Charter/Other"</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">district_type</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>    n_districts <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    total_students <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">n_students</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>    avg_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">n_students</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    .groups <span class="op">=</span> <span class="st">"drop"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>pct <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">total_students</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">total_students</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">charter_data</span></span></code></pre></div>
+<pre><code># A tibble: 2 x 5
+  district_type n_districts total_students avg_size   pct
+  &lt;chr&gt;               &lt;int&gt;          &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+1 Charter/Other         443         270016      610  24.2
+2 Traditional           195         845095     4334  75.8</code></pre>
+<div class="float">
+<img src="https://almartin82.github.io/azschooldata/articles/enrollment_simple_files/figure-html/charter-chart-1.png" alt="Charter chart"><div class="figcaption">Charter chart</div>
+</div>
 <hr>
 </div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"almartin82/azschooldata"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
-</h2>
 <div class="section level3">
 <h3 id="r">R<a class="anchor" aria-label="anchor" href="#r"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"almartin82/azschooldata"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="python">Python<a class="anchor" aria-label="anchor" href="#python"></a>
+</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">pip</span> install pyazschooldata</span></code></pre></div>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<div class="section level3">
+<h3 id="r-1">R<a class="anchor" aria-label="anchor" href="#r-1"></a>
+</h3>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://almartin82.github.io/azschooldata/">azschooldata</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span></span>
@@ -111,110 +271,90 @@
 <span><span class="va">enr_2024</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_enr.html">fetch_enr</a></span><span class="op">(</span><span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Fetch multiple years</span></span>
-<span><span class="va">enr_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_enr_multi.html">fetch_enr_multi</a></span><span class="op">(</span><span class="fl">2020</span><span class="op">:</span><span class="fl">2024</span><span class="op">)</span></span>
+<span><span class="va">enr_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_enr_multi.html">fetch_enr_multi</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2018</span>, <span class="fl">2024</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># State totals</span></span>
-<span><span class="va">enr_2024</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="va">enr_2024</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_state</span>, <span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># District breakdown</span></span>
-<span><span class="va">enr_2024</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_district</span>, <span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="va">enr_2024</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_district</span>, <span class="va">subgroup</span> <span class="op">==</span> <span class="st">"total_enrollment"</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">n_students</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Demographics</span></span>
-<span><span class="va">enr_2024</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="va">enr_2024</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_state</span>, <span class="va">grade_level</span> <span class="op">==</span> <span class="st">"TOTAL"</span>,</span>
-<span>         <span class="va">subgroup</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hispanic"</span>, <span class="st">"white"</span>, <span class="st">"black"</span>, <span class="st">"asian"</span>, <span class="st">"native_american"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>         <span class="va">subgroup</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hispanic"</span>, <span class="st">"white"</span>, <span class="st">"black"</span>, <span class="st">"asian"</span>, <span class="st">"native_american"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">subgroup</span>, <span class="va">n_students</span>, <span class="va">pct</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="python">Python<a class="anchor" aria-label="anchor" href="#python"></a>
+<h3 id="python-1">Python<a class="anchor" aria-label="anchor" href="#python-1"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="im">import</span> pyazschooldata <span class="im">as</span> az</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># Fetch one year</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>enr_2024 <span class="op">=</span> az.fetch_enr(<span class="dv">2024</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># Fetch multiple years</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>enr_multi <span class="op">=</span> az.fetch_enr_multi([<span class="dv">2020</span>, <span class="dv">2021</span>, <span class="dv">2022</span>, <span class="dv">2023</span>, <span class="dv">2024</span>])</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co"># State totals</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>state_total <span class="op">=</span> enr_2024[</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    (enr_2024[<span class="st">'is_state'</span>] <span class="op">==</span> <span class="va">True</span>) <span class="op">&amp;</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    (enr_2024[<span class="st">'subgroup'</span>] <span class="op">==</span> <span class="st">'total_enrollment'</span>) <span class="op">&amp;</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    (enr_2024[<span class="st">'grade_level'</span>] <span class="op">==</span> <span class="st">'TOTAL'</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>]</span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co"># District breakdown</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>districts <span class="op">=</span> enr_2024[</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>    (enr_2024[<span class="st">'is_district'</span>] <span class="op">==</span> <span class="va">True</span>) <span class="op">&amp;</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>    (enr_2024[<span class="st">'subgroup'</span>] <span class="op">==</span> <span class="st">'total_enrollment'</span>) <span class="op">&amp;</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>    (enr_2024[<span class="st">'grade_level'</span>] <span class="op">==</span> <span class="st">'TOTAL'</span>)</span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>].sort_values(<span class="st">'n_students'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co"># Demographics</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>demographics <span class="op">=</span> enr_2024[</span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>    (enr_2024[<span class="st">'is_state'</span>] <span class="op">==</span> <span class="va">True</span>) <span class="op">&amp;</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>    (enr_2024[<span class="st">'grade_level'</span>] <span class="op">==</span> <span class="st">'TOTAL'</span>) <span class="op">&amp;</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>    (enr_2024[<span class="st">'subgroup'</span>].isin([<span class="st">'hispanic'</span>, <span class="st">'white'</span>, <span class="st">'black'</span>, <span class="st">'asian'</span>, <span class="st">'native_american'</span>]))</span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>][[<span class="st">'subgroup'</span>, <span class="st">'n_students'</span>, <span class="st">'pct'</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="im">import</span> pyazschooldata <span class="im">as</span> az</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co"># Fetch one year</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>enr_2024 <span class="op">=</span> az.fetch_enr(<span class="dv">2024</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co"># Fetch multiple years</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>enr_multi <span class="op">=</span> az.fetch_enr_multi([<span class="dv">2018</span>, <span class="dv">2024</span>])</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co"># State totals</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>state_total <span class="op">=</span> enr_2024[</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>    (enr_2024[<span class="st">'is_state'</span>] <span class="op">==</span> <span class="va">True</span>) <span class="op">&amp;</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>    (enr_2024[<span class="st">'subgroup'</span>] <span class="op">==</span> <span class="st">'total_enrollment'</span>) <span class="op">&amp;</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>    (enr_2024[<span class="st">'grade_level'</span>] <span class="op">==</span> <span class="st">'TOTAL'</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a>]</span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="co"># District breakdown</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a>districts <span class="op">=</span> enr_2024[</span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a>    (enr_2024[<span class="st">'is_district'</span>] <span class="op">==</span> <span class="va">True</span>) <span class="op">&amp;</span></span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a>    (enr_2024[<span class="st">'subgroup'</span>] <span class="op">==</span> <span class="st">'total_enrollment'</span>) <span class="op">&amp;</span></span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a>    (enr_2024[<span class="st">'grade_level'</span>] <span class="op">==</span> <span class="st">'TOTAL'</span>)</span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a>].sort_values(<span class="st">'n_students'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="co"># Demographics</span></span>
+<span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a>demographics <span class="op">=</span> enr_2024[</span>
+<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a>    (enr_2024[<span class="st">'is_state'</span>] <span class="op">==</span> <span class="va">True</span>) <span class="op">&amp;</span></span>
+<span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a>    (enr_2024[<span class="st">'grade_level'</span>] <span class="op">==</span> <span class="st">'TOTAL'</span>) <span class="op">&amp;</span></span>
+<span id="cb14-27"><a href="#cb14-27" tabindex="-1"></a>    (enr_2024[<span class="st">'subgroup'</span>].isin([<span class="st">'hispanic'</span>, <span class="st">'white'</span>, <span class="st">'black'</span>, <span class="st">'asian'</span>, <span class="st">'native_american'</span>]))</span>
+<span id="cb14-28"><a href="#cb14-28" tabindex="-1"></a>][[<span class="st">'subgroup'</span>, <span class="st">'n_students'</span>, <span class="st">'pct'</span>]]</span></code></pre></div>
+<hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="data-availability">Data availability<a class="anchor" aria-label="anchor" href="#data-availability"></a>
+<h2 id="data-notes">Data Notes<a class="anchor" aria-label="anchor" href="#data-notes"></a>
 </h2>
-<table class="table">
-<colgroup>
-<col width="31%">
-<col width="36%">
-<col width="31%">
-</colgroup>
-<thead><tr class="header">
-<th>Years</th>
-<th>Source</th>
-<th>Notes</th>
-</tr></thead>
-<tbody><tr class="odd">
-<td><strong>2018, 2024</strong></td>
-<td>ADE October 1 Enrollment</td>
-<td>Full demographic and grade-level data</td>
-</tr></tbody>
-</table>
-<p>Data is sourced from the Arizona Department of Education October 1 enrollment reports. Years 2019-2023 are not available as automated downloads due to CloudFlare protection.</p>
-<div class="section level3">
-<h3 id="whats-included">What’s included<a class="anchor" aria-label="anchor" href="#whats-included"></a>
-</h3>
-<ul>
-<li>
-<strong>Levels:</strong> State, district (~230), school (~2,400)</li>
-<li>
-<strong>Demographics:</strong> Hispanic, White, Black, Asian, Native American, Pacific Islander, Two or More Races</li>
-<li>
-<strong>Special populations:</strong> English learners, economically disadvantaged, students with disabilities</li>
-<li>
-<strong>Grade levels:</strong> K-12</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="caveats">Caveats<a class="anchor" aria-label="anchor" href="#caveats"></a>
-</h3>
-<ul>
-<li>Pre-2018 data exists as PDF reports only (not supported)</li>
-<li>ADE URL patterns vary across years; downloads may take a few seconds</li>
-</ul>
-</div>
+<p><strong>Source:</strong> Arizona Department of Education October 1 Enrollment Reports</p>
+<p><strong>URL:</strong> <a href="https://www.azed.gov/accountability-research" class="external-link uri">https://www.azed.gov/accountability-research</a></p>
+<p><strong>Available years:</strong> 2018, 2024</p>
+<p><strong>Missing years:</strong> 2019-2023 (Cloudflare protection blocks automated downloads)</p>
+<p><strong>Census Day:</strong> October 1 of each school year</p>
+<p><strong>Important caveats:</strong> - Small counts may be suppressed in the source data - The ADE data includes a row named “Arizona” that appears to double-count state totals; this package’s vignettes exclude this row for accurate district-level analysis - Virtual and charter schools are counted separately from traditional districts</p>
+<p><strong>What’s included:</strong> - State, district, and school level enrollment - Demographics: Hispanic, White, Black, Asian, Native American, Pacific Islander, Multiracial - Gender: Male, Female - Grade levels: PK through 12</p>
+<hr>
 </div>
 <div class="section level2">
-<h2 id="data-source">Data source<a class="anchor" aria-label="anchor" href="#data-source"></a>
+<h2 id="more-stories">More Stories<a class="anchor" aria-label="anchor" href="#more-stories"></a>
 </h2>
-<p>Arizona Department of Education: <a href="https://www.azed.gov/accountability-research" class="external-link">Research and Evaluation</a></p>
+<p>See the <a href="https://almartin82.github.io/azschooldata/articles/enrollment_simple.html">full vignette</a> for 10 more data stories including:</p>
+<ul>
+<li>San Carlos is 99% Native American</li>
+<li>Border districts are over 95% Hispanic</li>
+<li>Mesa Unified is still Arizona’s largest district</li>
+<li>Top 27 districts educate half of Arizona’s students</li>
+<li>Virtual schools serve 7,000+ students</li>
+<li>And more…</li>
+</ul>
+<hr>
 </div>
 <div class="section level2">
 <h2 id="part-of-the-state-schooldata-project">Part of the State Schooldata Project<a class="anchor" aria-label="anchor" href="#part-of-the-state-schooldata-project"></a>
 </h2>
 <p>A simple, consistent interface for accessing state-published school data in Python and R.</p>
-<p><strong>All 50 state packages:</strong> <a href="https://github.com/almartin82?tab=repositories&amp;q=schooldata" class="external-link">github.com/almartin82</a></p>
+<p>Started with <a href="https://github.com/almartin82/njschooldata" class="external-link">njschooldata</a>, now expanding to all 50 states.</p>
+<p><strong>All state packages:</strong> <a href="https://github.com/almartin82?tab=repositories&amp;q=schooldata" class="external-link">github.com/almartin82</a></p>
+<hr>
 </div>
 <div class="section level2">
 <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a>
