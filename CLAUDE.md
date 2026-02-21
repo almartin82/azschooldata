@@ -11,6 +11,44 @@ federal data.
 
 ------------------------------------------------------------------------
 
+## Valid Filter Values (tidy enrollment via `fetch_enr(tidy = TRUE)`)
+
+### subgroup
+
+`total_enrollment`, `white`, `black`, `hispanic`, `asian`,
+`native_american`, `pacific_islander`, `multiracial`, `male`, `female`,
+`special_ed`, `lep`, `econ_disadv`
+
+**NOT in tidy enrollment:** All standard demographics, gender, and
+special populations are available when present in the ADE source data.
+
+### grade_level
+
+`PK`, `K`, `01`, `02`, `03`, `04`, `05`, `06`, `07`, `08`, `09`, `10`,
+`11`, `12`, `TOTAL`
+
+Grade aggregates from
+[`enr_grade_aggs()`](https://almartin82.github.io/azschooldata/reference/enr_grade_aggs.md):
+`K8`, `HS`, `K12`
+
+**Common trap:** Raw data uses `grade_pk`, `grade_k`, `grade_01`, etc.
+as column names, but tidy format normalizes to `PK`, `K`, `01`, etc.
+Always filter on the normalized values.
+
+### entity flags
+
+`is_state`, `is_district`, `is_campus`
+
+- `is_state`: `type == "State"`
+- `is_district`: `type == "District"`
+- `is_campus`: `type == "Campus"`
+
+Note: No `is_charter` flag is defined in
+[`id_enr_aggs()`](https://almartin82.github.io/azschooldata/reference/id_enr_aggs.md)
+for Arizona.
+
+------------------------------------------------------------------------
+
 ### GIT COMMIT POLICY
 
 - Commits are allowed

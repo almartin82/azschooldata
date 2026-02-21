@@ -40,7 +40,35 @@
 <div class="section level2">
 <h2 id="critical-data-source-rules">CRITICAL DATA SOURCE RULES<a class="anchor" aria-label="anchor" href="#critical-data-source-rules"></a></h2>
 <p><strong>NEVER use Urban Institute API, NCES CCD, or ANY federal data source</strong> — the entire point of these packages is to provide STATE-LEVEL data directly from state DOEs. Federal sources aggregate/transform data differently and lose state-specific details. If a state DOE source is broken, FIX IT or find an alternative STATE source — do not fall back to federal data.</p>
-<hr><div class="section level3">
+<hr></div>
+<div class="section level2">
+<h2 id="valid-filter-values-tidy-enrollment-via-fetch_enrtidy--true">Valid Filter Values (tidy enrollment via <code>fetch_enr(tidy = TRUE)</code>)<a class="anchor" aria-label="anchor" href="#valid-filter-values-tidy-enrollment-via-fetch_enrtidy--true"></a></h2>
+<div class="section level3">
+<h3 id="subgroup">subgroup<a class="anchor" aria-label="anchor" href="#subgroup"></a></h3>
+<p><code>total_enrollment</code>, <code>white</code>, <code>black</code>, <code>hispanic</code>, <code>asian</code>, <code>native_american</code>, <code>pacific_islander</code>, <code>multiracial</code>, <code>male</code>, <code>female</code>, <code>special_ed</code>, <code>lep</code>, <code>econ_disadv</code></p>
+<p><strong>NOT in tidy enrollment:</strong> All standard demographics, gender, and special populations are available when present in the ADE source data.</p>
+</div>
+<div class="section level3">
+<h3 id="grade_level">grade_level<a class="anchor" aria-label="anchor" href="#grade_level"></a></h3>
+<p><code>PK</code>, <code>K</code>, <code>01</code>, <code>02</code>, <code>03</code>, <code>04</code>, <code>05</code>, <code>06</code>, <code>07</code>, <code>08</code>, <code>09</code>, <code>10</code>, <code>11</code>, <code>12</code>, <code>TOTAL</code></p>
+<p>Grade aggregates from <code><a href="reference/enr_grade_aggs.html">enr_grade_aggs()</a></code>: <code>K8</code>, <code>HS</code>, <code>K12</code></p>
+<p><strong>Common trap:</strong> Raw data uses <code>grade_pk</code>, <code>grade_k</code>, <code>grade_01</code>, etc. as column names, but tidy format normalizes to <code>PK</code>, <code>K</code>, <code>01</code>, etc. Always filter on the normalized values.</p>
+</div>
+<div class="section level3">
+<h3 id="entity-flags">entity flags<a class="anchor" aria-label="anchor" href="#entity-flags"></a></h3>
+<p><code>is_state</code>, <code>is_district</code>, <code>is_campus</code></p>
+<ul><li>
+<code>is_state</code>: <code>type == "State"</code>
+</li>
+<li>
+<code>is_district</code>: <code>type == "District"</code>
+</li>
+<li>
+<code>is_campus</code>: <code>type == "Campus"</code>
+</li>
+</ul><p>Note: No <code>is_charter</code> flag is defined in <code><a href="reference/id_enr_aggs.html">id_enr_aggs()</a></code> for Arizona.</p>
+<hr></div>
+<div class="section level3">
 <h3 id="git-commit-policy">GIT COMMIT POLICY<a class="anchor" aria-label="anchor" href="#git-commit-policy"></a></h3>
 <ul><li>Commits are allowed</li>
 <li>NO Claude Code attribution, NO Co-Authored-By trailers, NO emojis</li>
